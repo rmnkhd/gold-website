@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+coverage
+*.min.js
+
+# فایل‌های تعریف skill ابزارهای agent.
+# lint-staged روی هر commit `prettier --write` را روی *.md اجرا می‌کند و
+# بازچینش متن، frontmatter این فایل‌ها را خراب می‌کند (بخصوص فیلد description
+# که بر اساس آن skill شناسایی می‌شود). اینها سورس اپ نیستند و نباید فرمت شوند.
+.claude/
+.agents/

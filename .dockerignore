@@ -1,0 +1,17 @@
+.git
+.githooks
+.claude
+graft
+.next*
+node_modules
+coverage
+out
+build
+.swc
+.vercel
+.yarn
+.pnp*
+.env*
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*

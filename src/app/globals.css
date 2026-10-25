@@ -1,0 +1,813 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------
+ * توکن‌های خام — تم برند: لاجوردی + طلایی (دستور مالک، ۲۰۲۶-۱۰-۲۵)
+ * لاجوردی (`brand-*`) رنگ اصلی و سطوح؛ طلایی (`gold-*`) فقط رنگ تأکید.
+ * هر رنگی که در UI استفاده می‌شود باید از همین‌جا بیاید — هیچ hex
+ * دستی داخل کامپوننت‌ها نوشته نمی‌شود.
+ * --------------------------------------------------------------- */
+:root {
+    --radius: 0.75rem;
+
+    /* لاجوردی */
+    --brand-50: #f0f4fb;
+    --brand-100: #dde6f5;
+    --brand-200: #bccdeb;
+    --brand-300: #8fa9d9;
+    --brand-400: #5f7fc3;
+    --brand-500: #3a5fa8;
+    --brand-600: #284a90;
+    --brand-700: #1d3a75;
+    --brand-800: #162d5c;
+    --brand-900: #0f2147;
+    --brand-950: #0a1530;
+
+    /* طلایی */
+    --gold-50: #fdf9ea;
+    --gold-100: #faf0c7;
+    --gold-200: #f5e08f;
+    --gold-300: #ecc757;
+    --gold-400: #e0ae2f;
+    --gold-500: #c9961c;
+    --gold-600: #a67715;
+    --gold-700: #835a15;
+    --gold-800: #6b4817;
+    --gold-900: #5a3c18;
+    --gold-950: #331f09;
+
+    /* خاکستری‌ها (مایل به لاجورد) */
+    --gray-0: #ffffff;
+    --gray-50: #f8f9fc;
+    --gray-100: #f0f2f7;
+    --gray-200: #e3e6ee;
+    --gray-300: #cdd2de;
+    --gray-400: #98a0b3;
+    --gray-500: #656d84;
+    --gray-600: #474f66;
+    --gray-700: #343c53;
+    --gray-800: #1f2740;
+    --gray-900: #121a30;
+    --gray-950: #0a1124;
+
+    /* وضعیت‌ها */
+    --success-50: #ecfdf3;
+    --success-500: #12b76a;
+    --success-700: #027a48;
+    --warning-50: #fffaeb;
+    --warning-500: #f79009;
+    --warning-700: #b54708;
+    --danger-50: #fef3f2;
+    --danger-500: #f04438;
+    --danger-700: #b42318;
+
+    /* توکن‌های معنایی shadcn */
+    --background: var(--gray-50);
+    --foreground: var(--gray-900);
+    --card: var(--gray-0);
+    --card-foreground: var(--gray-900);
+    --popover: var(--gray-0);
+    --popover-foreground: var(--gray-900);
+    --primary: var(--brand-800);
+    --primary-foreground: var(--gray-0);
+    --secondary: var(--gray-100);
+    --secondary-foreground: var(--gray-800);
+    --muted: var(--gray-100);
+    --muted-foreground: var(--gray-500);
+    --accent: var(--gold-50);
+    --accent-foreground: var(--gold-800);
+    --destructive: var(--danger-500);
+    --border: var(--gray-200);
+    --input: var(--gray-200);
+    --ring: var(--gold-400);
+
+    /* سطوح صفحه */
+    --surface: var(--gray-0);
+    --surface-subtle: var(--gray-50);
+    --surface-strong: var(--brand-950);
+    --surface-brand: var(--brand-50);
+}
+
+.dark {
+    --background: var(--brand-950);
+    --foreground: var(--gray-50);
+    --card: var(--brand-900);
+    --card-foreground: var(--gray-50);
+    --popover: var(--brand-900);
+    --popover-foreground: var(--gray-50);
+    --primary: var(--gold-400);
+    --primary-foreground: var(--brand-950);
+    --secondary: var(--brand-800);
+    --secondary-foreground: var(--gray-100);
+    --muted: var(--brand-800);
+    --muted-foreground: var(--gray-400);
+    --accent: var(--brand-800);
+    --accent-foreground: var(--gold-200);
+    --destructive: var(--danger-500);
+    --border: var(--brand-800);
+    --input: var(--brand-800);
+    --ring: var(--gold-400);
+
+    --surface: var(--brand-900);
+    --surface-subtle: var(--brand-950);
+    --surface-strong: var(--brand-900);
+    --surface-brand: var(--brand-900);
+}
+
+@theme inline {
+    /* فونت‌ها — هر دو متغیر از layout.tsx می‌آیند */
+    --font-sans: var(--font-body);
+    --font-display: var(--font-body);
+
+    /* رنگ‌های معنایی */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    /* سطوح */
+    --color-surface: var(--surface);
+    --color-surface-subtle: var(--surface-subtle);
+    --color-surface-strong: var(--surface-strong);
+    --color-surface-brand: var(--surface-brand);
+
+    /* رمپ لاجوردی */
+    --color-brand-50: var(--brand-50);
+    --color-brand-100: var(--brand-100);
+    --color-brand-200: var(--brand-200);
+    --color-brand-300: var(--brand-300);
+    --color-brand-400: var(--brand-400);
+    --color-brand-500: var(--brand-500);
+    --color-brand-600: var(--brand-600);
+    --color-brand-700: var(--brand-700);
+    --color-brand-800: var(--brand-800);
+    --color-brand-900: var(--brand-900);
+    --color-brand-950: var(--brand-950);
+
+    /* رمپ طلایی */
+    --color-gold-50: var(--gold-50);
+    --color-gold-100: var(--gold-100);
+    --color-gold-200: var(--gold-200);
+    --color-gold-300: var(--gold-300);
+    --color-gold-400: var(--gold-400);
+    --color-gold-500: var(--gold-500);
+    --color-gold-600: var(--gold-600);
+    --color-gold-700: var(--gold-700);
+    --color-gold-800: var(--gold-800);
+    --color-gold-900: var(--gold-900);
+    --color-gold-950: var(--gold-950);
+
+    /* رمپ خاکستری */
+    --color-gray-0: var(--gray-0);
+    --color-gray-50: var(--gray-50);
+    --color-gray-100: var(--gray-100);
+    --color-gray-200: var(--gray-200);
+    --color-gray-300: var(--gray-300);
+    --color-gray-400: var(--gray-400);
+    --color-gray-500: var(--gray-500);
+    --color-gray-600: var(--gray-600);
+    --color-gray-700: var(--gray-700);
+    --color-gray-800: var(--gray-800);
+    --color-gray-900: var(--gray-900);
+    --color-gray-950: var(--gray-950);
+
+    /* وضعیت‌ها */
+    --color-success-50: var(--success-50);
+    --color-success-500: var(--success-500);
+    --color-success-700: var(--success-700);
+    --color-warning-50: var(--warning-50);
+    --color-warning-500: var(--warning-500);
+    --color-warning-700: var(--warning-700);
+    --color-danger-50: var(--danger-50);
+    --color-danger-500: var(--danger-500);
+    --color-danger-700: var(--danger-700);
+
+    /* شعاع‌ها */
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) + 12px);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    body {
+        @apply bg-background text-foreground antialiased;
+        /* ss02: شکل صحیح «ک» و «گ» در IRANSansX */
+        font-feature-settings: 'ss02';
+        text-rendering: optimizeLegibility;
+    }
+
+    /* اعداد لاتین نباید فرم فارسی بگیرند */
+    .latin-nums {
+        font-feature-settings: normal;
+        direction: ltr;
+        unicode-bidi: isolate;
+    }
+
+    h1,
+    h2,
+    h3 {
+        @apply font-display tracking-tight;
+        text-wrap: balance;
+    }
+
+    p {
+        text-wrap: pretty;
+    }
+}
+
+@layer utilities {
+    /* عرض ثابت محتوا */
+    .container-page {
+        @apply mx-auto w-full max-w-[1200px] px-5 sm:px-6 lg:px-8;
+    }
+
+    /* فاصله‌ی عمودی استاندارد بین سکشن‌ها */
+    .section-y {
+        @apply py-16 sm:py-20 lg:py-28;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .scrollbar-hide {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    /* سطح لاجوردیِ عمیق — هیرو، کارت قیمت، نوار پایین */
+    .bg-navy-deep {
+        background-image: linear-gradient(160deg, var(--brand-800), var(--brand-950));
+    }
+
+    /* جلای طلایی — برای نشان‌ها و دکمه‌ی تأکید */
+    .bg-gold-sheen {
+        background-image:
+            linear-gradient(180deg, color-mix(in oklab, white 42%, transparent), transparent 48%),
+            linear-gradient(
+                135deg,
+                var(--gold-200) 0%,
+                var(--gold-300) 24%,
+                var(--gold-400) 52%,
+                var(--gold-300) 76%,
+                var(--gold-200) 100%
+            );
+    }
+
+    /* دکمه‌ی طلایی: لبه‌ی روشن، سایه‌ی گرم نرم و حالت‌های hover/active/focus/disabled */
+    .btn-gold {
+        box-shadow:
+            inset 0 1px 0 color-mix(in oklab, white 70%, transparent),
+            inset 0 -1px 0 color-mix(in oklab, var(--gold-700) 40%, transparent),
+            0 1px 2px color-mix(in oklab, var(--gold-800) 35%, transparent),
+            0 6px 14px -6px color-mix(in oklab, var(--gold-500) 70%, transparent);
+        transition:
+            transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 0.2s ease,
+            filter 0.2s ease;
+    }
+    .btn-gold:hover:not(:disabled) {
+        filter: brightness(1.05) saturate(1.08);
+        transform: translateY(-1px);
+        box-shadow:
+            inset 0 1px 0 color-mix(in oklab, white 80%, transparent),
+            inset 0 -1px 0 color-mix(in oklab, var(--gold-700) 40%, transparent),
+            0 1px 2px color-mix(in oklab, var(--gold-800) 35%, transparent),
+            0 10px 20px -6px color-mix(in oklab, var(--gold-500) 80%, transparent);
+    }
+    .btn-gold:active:not(:disabled) {
+        filter: brightness(0.97);
+        transform: translateY(0);
+        box-shadow:
+            inset 0 2px 4px color-mix(in oklab, var(--gold-800) 35%, transparent),
+            0 1px 1px color-mix(in oklab, var(--gold-800) 25%, transparent);
+    }
+    .btn-gold:focus-visible {
+        outline: 2px solid var(--gold-100);
+        outline-offset: 2px;
+        box-shadow:
+            0 0 0 4px color-mix(in oklab, var(--gold-500) 65%, transparent),
+            inset 0 1px 0 color-mix(in oklab, white 70%, transparent);
+    }
+    .btn-gold:disabled {
+        filter: grayscale(0.55);
+        box-shadow: none;
+    }
+
+    .text-gold-sheen {
+        background-image: linear-gradient(135deg, var(--gold-200), var(--gold-400) 60%, var(--gold-500));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* لاجوردی عمیق + هاله‌ی نرمِ طلایی (دو لایه در یک کلاس؛ بدون blur سنگین) */
+    .bg-navy-glow {
+        background-image:
+            radial-gradient(
+                circle at 85% 0%,
+                color-mix(in oklab, var(--gold-400) 28%, transparent),
+                transparent 55%
+            ),
+            linear-gradient(160deg, var(--brand-800), var(--brand-950));
+    }
+
+    /* هاله‌ی نرمِ طلایی (بدون blur سنگین) */
+    .bg-gold-glow {
+        background-image: radial-gradient(
+            circle at 85% 0%,
+            color-mix(in oklab, var(--gold-400) 28%, transparent),
+            transparent 55%
+        );
+    }
+
+    /* ناحیه‌ی امنِ پایین برای نوار ناوبری موبایل (iPhone و …) */
+    .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ================= حرکت (موشن) =================
+   همه‌ی حرکت‌ها نرم و کوتاه‌اند و با prefers-reduced-motion خاموش می‌شوند. */
+
+@keyframes rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes soft-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes sheen-sweep {
+    0% {
+        transform: translateX(-130%) skewX(-18deg);
+    }
+    100% {
+        transform: translateX(230%) skewX(-18deg);
+    }
+}
+
+@keyframes float-y {
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-12px) rotate(4deg);
+    }
+}
+
+@keyframes drift-x {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(14px);
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        box-shadow: 0 0 0 0 color-mix(in oklab, var(--gold-400) 50%, transparent);
+    }
+    100% {
+        box-shadow: 0 0 0 16px transparent;
+    }
+}
+
+@keyframes gold-flow {
+    from {
+        background-position: 0% 50%;
+    }
+    to {
+        background-position: 200% 50%;
+    }
+}
+
+@keyframes skeleton-sweep {
+    from {
+        background-position: 200% 0;
+    }
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes grow-up {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes pop-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    70% {
+        transform: scale(1.04);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@layer utilities {
+    .animate-rise {
+        animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .animate-soft-fade {
+        animation: soft-fade 0.5s ease-out both;
+    }
+
+    .animate-pop {
+        animation: pop-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .animate-float {
+        animation: float-y 7s ease-in-out infinite;
+    }
+
+    .animate-float-slow {
+        animation: float-y 11s ease-in-out infinite reverse;
+    }
+
+    .animate-drift {
+        animation: drift-x 9s ease-in-out infinite;
+    }
+
+    .animate-pulse-ring {
+        animation: pulse-ring 2.2s ease-out infinite;
+    }
+
+    /* برق طلایی روی متن؛ برای شعار و عدد کلیدی */
+    .text-gold-flow {
+        background-image: linear-gradient(
+            100deg,
+            var(--gold-500) 0%,
+            var(--gold-200) 25%,
+            var(--gold-500) 50%,
+            var(--gold-300) 75%,
+            var(--gold-500) 100%
+        );
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: gold-flow 5s linear infinite;
+    }
+
+    /* لیست‌ها و شبکه‌ها: فرزندان پله‌ای وارد می‌شوند (۱۲ تای اول) */
+    .stagger > * {
+        animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .stagger > *:nth-child(1) {
+        animation-delay: 0ms;
+    }
+    .stagger > *:nth-child(2) {
+        animation-delay: 45ms;
+    }
+    .stagger > *:nth-child(3) {
+        animation-delay: 90ms;
+    }
+    .stagger > *:nth-child(4) {
+        animation-delay: 135ms;
+    }
+    .stagger > *:nth-child(5) {
+        animation-delay: 180ms;
+    }
+    .stagger > *:nth-child(6) {
+        animation-delay: 225ms;
+    }
+    .stagger > *:nth-child(7) {
+        animation-delay: 270ms;
+    }
+    .stagger > *:nth-child(8) {
+        animation-delay: 315ms;
+    }
+    .stagger > *:nth-child(9) {
+        animation-delay: 360ms;
+    }
+    .stagger > *:nth-child(10) {
+        animation-delay: 405ms;
+    }
+    .stagger > *:nth-child(11) {
+        animation-delay: 450ms;
+    }
+    .stagger > *:nth-child(n + 12) {
+        animation-delay: 495ms;
+    }
+
+    /* کارت: با بردن ماوس کمی بالا می‌آید */
+    .hover-lift {
+        transition:
+            transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px -12px color-mix(in oklab, var(--brand-900) 35%, transparent);
+        border-color: var(--gold-300);
+    }
+
+    /* دکمه‌ی طلایی: برق عبوری هنگام hover */
+    .btn-sheen {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+    }
+    .btn-sheen::after {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        width: 40%;
+        background: linear-gradient(90deg, transparent, color-mix(in oklab, white 55%, transparent), transparent);
+        transform: translateX(-130%) skewX(-18deg);
+        pointer-events: none;
+        z-index: -1;
+    }
+    .btn-sheen:hover::after {
+        animation: sheen-sweep 0.9s ease-out;
+    }
+
+    /* اسکلت بارگذاری با درخشش */
+    .skeleton-sweep {
+        background-image: linear-gradient(
+            100deg,
+            transparent 30%,
+            color-mix(in oklab, var(--gold-200) 45%, transparent) 50%,
+            transparent 70%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-sweep 1.6s ease-in-out infinite;
+    }
+
+    .origin-bottom-grow {
+        transform-origin: bottom;
+        animation: grow-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-rise,
+    .animate-soft-fade,
+    .animate-pop,
+    .animate-float,
+    .animate-float-slow,
+    .animate-drift,
+    .animate-pulse-ring,
+    .text-gold-flow,
+    .stagger > *,
+    .skeleton-sweep,
+    .origin-bottom-grow,
+    .btn-sheen:hover::after {
+        animation: none !important;
+    }
+    .hover-lift:hover {
+        transform: none;
+    }
+}
+
+/* ---- تکمیل موشن سایت ---- */
+@keyframes marquee-rtl {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(50%);
+    }
+}
+
+@layer utilities {
+    .animate-marquee {
+        animation: marquee-rtl 38s linear infinite;
+    }
+    .marquee:hover .animate-marquee {
+        animation-play-state: paused;
+    }
+    .delay-a1 {
+        animation-delay: 0.1s;
+    }
+    .delay-a2 {
+        animation-delay: 0.2s;
+    }
+    .delay-a3 {
+        animation-delay: 0.3s;
+    }
+    .delay-a4 {
+        animation-delay: 0.42s;
+    }
+    .delay-a5 {
+        animation-delay: 0.55s;
+    }
+    .link-underline {
+        position: relative;
+    }
+    .link-underline::after {
+        content: '';
+        position: absolute;
+        inset-inline: 0.75rem;
+        bottom: 0.3rem;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--gold-400);
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .link-underline:hover::after,
+    .link-underline[aria-current='page']::after {
+        transform: scaleX(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-marquee {
+        animation: none !important;
+    }
+}
+
+/* ---- طلای آب‌شده (molten-gold.tsx) ---- */
+@keyframes wave-shift {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* یک چرخه‌ی ۴ ثانیه‌ای: دانه روی لبه کش می‌آید → قطره جدا می‌شود → می‌افتد → حلقه روی سطح */
+@keyframes molten-bead {
+    0% {
+        opacity: 1;
+        transform: scale(0.7, 0.3);
+    }
+    54% {
+        opacity: 1;
+        transform: scale(1, 1.6);
+    }
+    58%,
+    100% {
+        opacity: 0;
+        transform: scale(0.6, 1.8);
+    }
+}
+
+@keyframes molten-drop {
+    0%,
+    55% {
+        opacity: 0;
+        transform: translateY(0.9rem) scale(0.8, 1);
+    }
+    58% {
+        opacity: 1;
+        transform: translateY(0.9rem) scale(0.9, 1.15);
+    }
+    88% {
+        opacity: 1;
+        transform: translateY(calc(100cqh - var(--pool) * 0.66 - 0.5rem)) scale(0.75, 1.45);
+    }
+    90%,
+    100% {
+        opacity: 0;
+        transform: translateY(calc(100cqh - var(--pool) * 0.66)) scale(0.5, 0.5);
+    }
+}
+
+@keyframes molten-ripple {
+    0%,
+    88% {
+        opacity: 0;
+        transform: scale(0.2, 0.2);
+    }
+    90% {
+        opacity: 0.9;
+        transform: scale(0.3, 0.3);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.5, 1.5);
+    }
+}
+
+@keyframes molten-breathe {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(3px);
+    }
+}
+
+@keyframes molten-glint {
+    0%,
+    100% {
+        opacity: 0;
+        transform: scale(0.2) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1) rotate(45deg);
+    }
+}
+
+@keyframes molten-sheen {
+    0% {
+        transform: translateX(-120%) skewX(-18deg);
+    }
+    55%,
+    100% {
+        transform: translateX(560%) skewX(-18deg);
+    }
+}
+
+@layer utilities {
+    .animate-wave {
+        animation: wave-shift 16s linear infinite;
+    }
+    .animate-wave-rev {
+        animation: wave-shift 24s linear infinite reverse;
+    }
+    .animate-molten-bead {
+        animation: molten-bead 4.2s ease-in infinite;
+    }
+    .animate-molten-drop {
+        animation: molten-drop 4.2s cubic-bezier(0.5, 0, 0.9, 0.6) infinite;
+    }
+    .animate-molten-ripple {
+        animation: molten-ripple 4.2s ease-out infinite;
+    }
+    .animate-molten-breathe {
+        animation: molten-breathe 6s ease-in-out infinite;
+    }
+    .animate-molten-glint {
+        animation: molten-glint 3.2s ease-in-out infinite;
+    }
+    .animate-molten-sheen {
+        animation: molten-sheen 8s ease-in-out infinite;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-wave,
+    .animate-wave-rev,
+    .animate-molten-bead,
+    .animate-molten-drop,
+    .animate-molten-ripple,
+    .animate-molten-breathe,
+    .animate-molten-glint,
+    .animate-molten-sheen {
+        animation: none !important;
+    }
+    .animate-molten-glint {
+        opacity: 0.8;
+        transform: scale(0.7);
+    }
+    .animate-molten-bead {
+        opacity: 0;
+    }
+}

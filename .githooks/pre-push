@@ -1,0 +1,36 @@
+#!/bin/sh
+# نگهبانِ پیش از push — پنل مشاور زرینه.
+#
+# نصب (یک بار در هر کلون):
+#     git config core.hooksPath .githooks
+#
+# دور زدن: git push --no-verify
+
+set -e
+
+echo "▸ typecheck"
+npx tsc --noEmit
+
+echo "▸ lint"
+npx eslint src
+
+echo "▸ test"
+yarn test
+
+# بیلد تنها چیزی است که خطاهای زمانِ ساختِ Next را می‌گیرد.
+#
+# ⚠️ به پوشه‌ی **جداگانه** بیلد می‌گیریم، نه `.next`. بیلد در `.next`
+# خروجیِ تولید را زیرِ پای سرورِ dev می‌ریخت و dev بعدی روی آن **همه‌ی
+# مسیرها را ۴۰۴** می‌داد — حتی `/` — بی‌هیچ خطایی در لاگ. یعنی هر push
+# پنل را برای کارِ بعدی خراب می‌کرد و علتش هیچ‌جا دیده نمی‌شد.
+#
+# سایت همین رفع را پیش‌تر گرفته بود (با یک نشانه‌ی دیگرِ همین تداخل:
+# `rm -rf .next` روی ویندوز با dev باز شکست می‌خورد) ولی پنل از قلم افتاد
+# → amlaki-vault/issues/باگ‌های باز.md
+export NEXT_DIST_DIR=.next-verify
+
+echo "▸ build (جدا از dev)"
+rm -rf "$NEXT_DIST_DIR"
+yarn build
+
+echo "✓ پنل سالم است"

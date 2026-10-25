@@ -1,0 +1,57 @@
+{
+  "compilerOptions": {
+    "strictNullChecks": true,
+    // تست‌ها با `node --test --experimental-strip-types` اجرا می‌شوند و
+    // ایمپورت باید پسوند `.ts` صریح داشته باشد.
+    "allowImportingTsExtensions": true,
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "svgr.d.ts",
+    "pasoonate.d.ts",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    // بیلدِ هوکِ pre-push به `.next-verify` می‌رود (`next.config.js`).
+    // Next خودش این دو خط را اضافه می‌کند اگر نباشند — و هر بار کل
+    // فایل را با تورفتگیِ دوفاصله بازنویسی می‌کند. بودنشان اینجا یعنی
+    // چیزی برای بازنویسی نمی‌ماند و درخت بعد از هر push تمیز می‌ماند.
+    ".next-verify/types/**/*.ts",
+    ".next-verify/dev/types/**/*.ts",
+    ".next-verify-codex/types/**/*.ts",
+    ".next-verify-codex/dev/types/**/*.ts",
+    ".next-posts-verify/types/**/*.ts",
+    ".next-posts-verify/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

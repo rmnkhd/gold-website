@@ -18,14 +18,18 @@ import JsonLd from '@/components/seo/json-ld';
 import SellerCard from '@/components/sellers/seller-card';
 import { Button } from '@/components/ui/button';
 
+// Utils And Hooks
+import { pageMetadata } from '@/lib/seo';
+
 // Services
 import { getSellers } from '@/service/api/market';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
     title: `${BRAND.name} — قیمت لحظه‌ای طلا و فروشندگان معتبر`,
     description: BRAND.description,
-    alternates: { canonical: '/' },
-};
+    path: '/',
+    absoluteTitle: true,
+});
 
 const FEATURES: { href: string; icon: IconName; title: string; text: string }[] = [
     {

@@ -33,3 +33,6 @@ next-env.d.ts
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# لاگ dev server که دستی بالا آمده
+/dev.*.log

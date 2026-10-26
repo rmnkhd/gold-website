@@ -9,13 +9,14 @@ import { GUIDES } from '@/statics/guides';
 import PlatformNotice from '@/components/shared/platform-notice';
 
 // Utils And Hooks
+import { pageMetadata } from '@/lib/seo';
 import { toPersianDigits } from '@/utils/number';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
     title: 'راهنمای خرید طلا و جواهر',
     description: 'راهنماهای کوتاه و کاربردی درباره‌ی اجرت، سود، مالیات و چک‌لیست خرید طلا.',
-    alternates: { canonical: '/guides' },
-};
+    path: '/guides',
+});
 
 export default function GuidesPage() {
     return (

@@ -1,3 +1,26 @@
+const isProd = process.env.NODE_ENV === 'production';
+const apiOrigin = new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8090').origin;
+
+/**
+ * سیاست امنیت محتوا (فقط production؛ dev به eval و websocket نیاز دارد).
+ * `'unsafe-inline'` برای اسکریپت‌های درون‌خطی Next و JSON-LD لازم است؛ بدون nonce راه دیگری نیست.
+ * تصویر: کاشی نقشه و عکس کالا از https یا data/blob؛ API فقط مبدأ خودش.
+ */
+const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    `connect-src 'self' ${apiOrigin}`,
+    "worker-src 'self'",
+    "manifest-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+].join('; ');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'standalone',
@@ -45,6 +68,13 @@ const nextConfig = {
                 { key: 'X-Content-Type-Options', value: 'nosniff' },
                 { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
                 { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+                { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=(self)' },
+                ...(isProd
+                    ? [
+                          { key: 'Content-Security-Policy', value: csp },
+                          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+                      ]
+                    : []),
             ],
         },
         // برای `/_next/static` هدر دستی نمی‌گذاریم — Next خودش روی دارایی‌های

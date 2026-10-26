@@ -63,6 +63,8 @@ export interface FavoriteItem {
     conditions: string;
     wagePercent: number;
     inStock: boolean;
+    /** برآورد یک قطعه از سرور؛ ۰ = نامشخص */
+    estimatedTotal: number;
     id: string;
     title: string;
     karat: number;

@@ -27,12 +27,10 @@ import { createOrder, GET_MY_ORDERS } from '@/service/api/account';
 
 // Utils And Hooks
 import { useSession } from '@/hooks/use-session';
-import { calcGoldPrice } from '@/lib/gold-pricing';
 import { formatPrice, toPersianDigits } from '@/utils/number';
 import { showError, showSuccess } from '@/utils/toast';
 
 const MAX_QUANTITY = 9;
-const DEFAULT_PROFIT_PERCENT = 7;
 
 const schema = z.object({
     quantities: z.array(z.number().int().min(0).max(MAX_QUANTITY)),
@@ -45,7 +43,8 @@ export default function OrderPanel({ seller }: { seller: Seller }) {
     const queryClient = useQueryClient();
     const { session, ready } = useSession();
     const prices = useQuery(marketPricesOptions);
-    const base = prices.data?.data?.stale ? 0 : (prices.data?.data?.gold18 ?? 0);
+    /** قیمت کهنه یا نامشخص: برآورد نشان داده نمی‌شود */
+    const priceUsable = Boolean(prices.data?.data) && !prices.data?.data?.stale;
 
     const form = useForm<Values>({
         resolver: zodResolver(schema),
@@ -55,14 +54,9 @@ export default function OrderPanel({ seller }: { seller: Seller }) {
 
     const estimate = (index: number): number => {
         const item = seller.catalog[index];
-        if (!item || base <= 0) return 0;
-        return calcGoldPrice({
-            weightGram: item.weightGram * Math.max(quantities[index] ?? 0, 1),
-            karat: item.karat,
-            pricePerGram18: base,
-            wagePercent: item.wagePercent,
-            profitPercent: DEFAULT_PROFIT_PERCENT,
-        }).total;
+        if (!item || !priceUsable) return 0;
+        // برآورد یک قطعه از سرور (اجرت، سود و مالیات همین فروشگاه)
+        return item.estimatedTotal * Math.max(quantities[index] ?? 0, 1);
     };
 
     const selected = seller.catalog
@@ -155,7 +149,7 @@ export default function OrderPanel({ seller }: { seller: Seller }) {
                                                 {toPersianDigits(item.wagePercent)}٪
                                             </p>
                                             <p className="mt-1 text-xs font-medium text-gold-700">
-                                                {base > 0 ? `≈ ${formatPrice(estimate(i))} تومان` : 'قیمت تازه در دسترس نیست؛ استعلام از فروشنده'}
+                                                {estimate(i) > 0 ? `≈ ${formatPrice(estimate(i))} تومان` : 'قیمت تازه در دسترس نیست؛ استعلام از فروشنده'}
                                             </p>
                                         </div>
                                         {item.conditions ? <p className="order-last w-full border-t pt-3 text-sm leading-7 text-muted-foreground">{item.conditions}</p> : null}
@@ -226,8 +220,8 @@ export default function OrderPanel({ seller }: { seller: Seller }) {
                                     {toPersianDigits(selected.length)} قلم انتخاب‌شده
                                 </span>
                                 <span className="text-gold-sheen text-xl font-extrabold">
-                                    {base > 0 ? formatPrice(total) : 'نیاز به استعلام'}
-                                    {base > 0 && (
+                                    {total > 0 ? formatPrice(total) : 'نیاز به استعلام'}
+                                    {total > 0 && (
                                         <span className="ms-1 text-xs font-medium text-brand-200">
                                             تومان (تخمینی)
                                         </span>

@@ -30,6 +30,8 @@ export interface CatalogItem {
     weightGram: number;
     wagePercent: number;
     inStock: boolean;
+    /** برآورد یک قطعه با اجرت، سود و مالیات همان فروشگاه و قیمت روز (سرور)؛ ۰ = نامشخص */
+    estimatedTotal: number;
 }
 
 export interface Seller {
@@ -48,6 +50,8 @@ export interface Seller {
     specialties: string[];
     lat: number | null;
     lng: number | null;
+    /** ISO؛ آخرین تغییر صفحه یا کاتالوگ عمومی (lastmod sitemap) */
+    updatedAt: string;
     catalog: CatalogItem[];
 }
 
@@ -105,7 +109,35 @@ export interface Guide {
     slug: string;
     title: string;
     description: string;
+    /** نمایش فارسی */
     publishedAt: string;
+    /** ISO (YYYY-MM-DD) برای داده‌ی ساخت‌یافته و sitemap */
+    publishedIso: string;
     readingMinutes: number;
     sections: GuideSection[];
+}
+
+/** مالیات و پیش‌فرض‌های محاسبه‌گر عمومی (تنظیم سرور) */
+export interface CalculatorConfig {
+    vatPercent: number;
+    defaultWagePercent: number;
+    defaultProfitPercent: number;
+    defaultWeightGram: number;
+    karats: number[];
+}
+
+/** نتیجه‌ی محاسبه‌ی سرور برای یک جواهر */
+export interface CalculatorResult {
+    price18: number;
+    karat: number;
+    weightGram: number;
+    pricePerGram: number;
+    wagePercent: number;
+    profitPercent: number;
+    vatPercent: number;
+    goldValue: number;
+    wage: number;
+    profit: number;
+    vat: number;
+    total: number;
 }

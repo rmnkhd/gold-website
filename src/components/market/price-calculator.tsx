@@ -1,10 +1,13 @@
 'use client';
 
 // React
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
+
+// Statics And Types
+import type { CalculatorConfig } from '@/dto/market';
 
 // Components
 import CountUp from '@/components/motion/count-up';
@@ -24,18 +27,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Services
-import { marketPricesOptions } from '@/service/api/market';
+import { calculateJewelry, GET_CALCULATE, GET_CALCULATOR_CONFIG, getCalculatorConfig } from '@/service/api/market';
 
 // Utils And Hooks
-import { calcGoldPrice, GOLD_VAT_PERCENT } from '@/lib/gold-pricing';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { formatPrice, toPersianDigits } from '@/utils/number';
 
-const KARATS = ['18', '21', '22', '24'] as const;
-
 const calcSchema = z.object({
-    karat: z.enum(KARATS),
+    karat: z.string().min(1),
     weightGram: z
         .number({ message: 'وزن را وارد کنید' })
         .positive('وزن باید بیشتر از صفر باشد')
@@ -48,35 +50,57 @@ type CalcValues = z.infer<typeof calcSchema>;
 
 const numberValue = (value: number) => (Number.isNaN(value) ? '' : value);
 
-/** محاسبه‌گر شفاف قیمت جواهر: طلا + اجرت + سود + مالیات (فقط روی اجرت و سود) */
+/** محاسبه‌گر شفاف قیمت جواهر: طلا + اجرت + سود + مالیات (فقط روی اجرت و سود) — همه‌ی عددها از سرور */
 export default function PriceCalculator() {
-    const prices = useQuery(marketPricesOptions);
+    const config = useQuery({
+        queryKey: [GET_CALCULATOR_CONFIG],
+        queryFn: getCalculatorConfig,
+        staleTime: 10 * 60_000,
+    });
 
+    if (!config.data?.data) {
+        return config.isError ? (
+            <p className="rounded-2xl border border-dashed bg-card p-6 text-sm text-muted-foreground">
+                ارتباط با سرور برقرار نشد؛ کمی بعد دوباره امتحان کنید.
+            </p>
+        ) : (
+            <Skeleton className="h-72 w-full rounded-2xl" />
+        );
+    }
+    return <CalculatorForm config={config.data.data} />;
+}
+
+function CalculatorForm({ config }: { config: CalculatorConfig }) {
     const form = useForm<CalcValues>({
         resolver: zodResolver(calcSchema),
-        defaultValues: { karat: '18', weightGram: 5, wagePercent: 12, profitPercent: 7 },
+        defaultValues: {
+            karat: String(config.karats[0]),
+            weightGram: config.defaultWeightGram,
+            wagePercent: config.defaultWagePercent,
+            profitPercent: config.defaultProfitPercent,
+        },
     });
     const values = useWatch({ control: form.control });
-    const base = prices.data?.data?.gold18 ?? 0;
 
+    const params = {
+        karat: Number(values.karat),
+        weight: values.weightGram ?? NaN,
+        wagePercent: values.wagePercent ?? NaN,
+        profitPercent: values.profitPercent ?? NaN,
+    };
     const valid =
-        base > 0 &&
-        values.weightGram !== undefined &&
-        values.weightGram > 0 &&
-        values.wagePercent !== undefined &&
-        !Number.isNaN(values.wagePercent) &&
-        values.profitPercent !== undefined &&
-        !Number.isNaN(values.profitPercent);
-
-    const breakdown = valid
-        ? calcGoldPrice({
-              weightGram: values.weightGram ?? 0,
-              karat: Number(values.karat),
-              pricePerGram18: base,
-              wagePercent: values.wagePercent ?? 0,
-              profitPercent: values.profitPercent ?? 0,
-          })
-        : null;
+        params.weight > 0 &&
+        !Number.isNaN(params.wagePercent) &&
+        !Number.isNaN(params.profitPercent);
+    const debounced = useDebouncedValue(valid ? JSON.stringify(params) : '', 300);
+    const result = useQuery({
+        queryKey: [GET_CALCULATE, debounced],
+        queryFn: () => calculateJewelry(JSON.parse(debounced)),
+        enabled: debounced !== '',
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+    const breakdown = valid && debounced !== '' ? result.data?.data : undefined;
 
     return (
         <div className="grid gap-5 lg:grid-cols-2">
@@ -100,8 +124,8 @@ export default function PriceCalculator() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {KARATS.map((k) => (
-                                                <SelectItem key={k} value={k}>
+                                            {config.karats.map((k) => (
+                                                <SelectItem key={k} value={String(k)}>
                                                     {toPersianDigits(k)} عیار
                                                 </SelectItem>
                                             ))}
@@ -189,11 +213,17 @@ export default function PriceCalculator() {
                 <h2 className="mb-4 text-sm font-semibold text-brand-200">قیمت تخمینی</h2>
                 {breakdown ? (
                     <dl className="space-y-2.5 text-sm">
+                        <div className="flex items-center justify-between text-xs text-brand-300">
+                            <dt>
+                                مبنا: قیمت هر گرم {toPersianDigits(breakdown.karat)} عیار
+                            </dt>
+                            <dd>{formatPrice(Math.round(breakdown.pricePerGram))} تومان</dd>
+                        </div>
                         <Row label="ارزش طلا" value={breakdown.goldValue} />
                         <Row label="اجرت ساخت" value={breakdown.wage} />
                         <Row label="سود فروشنده" value={breakdown.profit} />
                         <Row
-                            label={`مالیات (${toPersianDigits(GOLD_VAT_PERCENT)}٪ اجرت و سود)`}
+                            label={`مالیات (${toPersianDigits(breakdown.vatPercent)}٪ اجرت و سود)`}
                             value={breakdown.vat}
                         />
                         <div className="mt-3 flex items-center justify-between border-t border-white/15 pt-4">
@@ -210,6 +240,8 @@ export default function PriceCalculator() {
                             </dd>
                         </div>
                     </dl>
+                ) : result.isError ? (
+                    <p className="text-sm text-danger-50">{result.error.message}</p>
                 ) : (
                     <p className="text-sm text-brand-200">مقادیر معتبر وارد کنید.</p>
                 )}

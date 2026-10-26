@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { getSellerBySlug, getSellers } from '@/service/api/market';
 
 // Utils And Hooks
+import { breadcrumbLd, OG_IMAGE, pageMetadata } from '@/lib/seo';
 import { toPersianDigits } from '@/utils/number';
 
 interface SellerPageProps {
@@ -38,11 +39,11 @@ export async function generateMetadata({ params }: SellerPageProps): Promise<Met
     const { slug } = await params;
     const seller = await getSellerBySlug(slug);
     if (!seller) return {};
-    return {
+    return pageMetadata({
         title: `${seller.name} — طلافروشی در ${seller.city}`,
         description: `${seller.about} نشانی: ${seller.address}. ساعت کاری: ${seller.hours}.`,
-        alternates: { canonical: `/sellers/${seller.slug}` },
-    };
+        path: `/sellers/${seller.slug}`,
+    });
 }
 
 export default async function SellerPage({ params }: SellerPageProps) {
@@ -56,9 +57,15 @@ export default async function SellerPage({ params }: SellerPageProps) {
                 data={{
                     '@context': 'https://schema.org',
                     '@type': 'JewelryStore',
+                    '@id': `${SITE_URL}/sellers/${seller.slug}#store`,
                     name: seller.name,
+                    description: seller.about,
                     url: `${SITE_URL}/sellers/${seller.slug}`,
+                    image: `${SITE_URL}${OG_IMAGE.url}`,
                     telephone: seller.phone,
+                    ...(seller.lat !== null && seller.lng !== null
+                        ? { geo: { '@type': 'GeoCoordinates', latitude: seller.lat, longitude: seller.lng } }
+                        : {}),
                     address: {
                         '@type': 'PostalAddress',
                         addressLocality: seller.city,
@@ -76,6 +83,13 @@ export default async function SellerPage({ params }: SellerPageProps) {
                           }
                         : {}),
                 }}
+            />
+
+            <JsonLd
+                data={breadcrumbLd([
+                    { name: 'طلافروشان معتبر', path: '/sellers' },
+                    { name: seller.name, path: `/sellers/${seller.slug}` },
+                ])}
             />
 
             <section className="bg-navy-glow rounded-2xl p-6 text-white">

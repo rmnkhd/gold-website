@@ -15,7 +15,6 @@ import { BOOKING_STATUS_LABEL, ORDER_STATUS_LABEL, type NotifyPrefs } from '@/dt
 // Components
 import ProductPhoto from '@/components/shared/product-photo';
 import { marketPricesOptions } from '@/service/api/market';
-import { calcGoldPrice } from '@/lib/gold-pricing';
 import PlatformNotice from '@/components/shared/platform-notice';
 import { Icon } from '@/components/icon';
 import FavoriteButton from '@/components/sellers/favorite-button';
@@ -308,7 +307,7 @@ function FavoritesTab() {
                                 <ProductPhoto src={i.imageUrl} title={i.title} />
                                 <Link href={`/sellers/${i.shopSlug}#item-${i.id}`} className="min-w-0 flex-1 px-3 focus-visible:underline">
                                     <p className="font-semibold">{i.title}</p>
-                                    <p className="mt-1 text-sm text-gold-700">{prices.data?.data && !prices.data.data.stale ? `${formatPrice(calcGoldPrice({ weightGram: i.weightGram, karat: i.karat, pricePerGram18: prices.data.data.gold18, wagePercent: i.wagePercent, profitPercent: 7 }).total)} تومان (تخمینی)` : 'قیمت نیاز به استعلام دارد'}</p>
+                                    <p className="mt-1 text-sm text-gold-700">{prices.data?.data && !prices.data.data.stale && i.estimatedTotal > 0 ? `${formatPrice(i.estimatedTotal)} تومان (تخمینی)` : 'قیمت نیاز به استعلام دارد'}</p>
                                     {i.conditions ? <p className="my-2 text-sm text-muted-foreground">{i.conditions}</p> : null}
                                     <p className="my-1 text-xs font-semibold">{i.inStock ? 'مشاهده کالا و ادامه خرید ←' : 'فعلاً ناموجود · مشاهده کالا'}</p>
                                     <p className="text-xs text-muted-foreground">

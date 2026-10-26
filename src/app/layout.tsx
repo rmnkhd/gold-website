@@ -4,6 +4,7 @@ import localFont from 'next/font/local';
 
 // Statics And Types
 import { BRAND, SITE_URL } from '@/constants/brand';
+import { OG_IMAGE } from '@/lib/seo';
 
 // Components
 import Provider from './provider';
@@ -33,12 +34,20 @@ export const metadata: Metadata = {
     description: BRAND.description,
     manifest: '/manifest.webmanifest',
     icons: { icon: '/icon.svg', apple: '/apple-touch-icon.png' },
+    applicationName: BRAND.name,
+    // canonical در هر صفحه جدا تعریف می‌شود؛ مقدار ریشه همه‌ی صفحه‌ها را به خانه نسبت می‌داد
     openGraph: {
         type: 'website',
         locale: 'fa_IR',
         siteName: BRAND.name,
+        images: [OG_IMAGE],
     },
-    alternates: { canonical: '/' },
+    twitter: { card: 'summary_large_image', images: [OG_IMAGE.url] },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+    },
 };
 
 export const viewport: Viewport = {
@@ -54,11 +63,33 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <JsonLd
                     data={{
                         '@context': 'https://schema.org',
-                        '@type': 'WebSite',
-                        name: BRAND.name,
-                        url: SITE_URL,
-                        inLanguage: 'fa-IR',
-                        description: BRAND.description,
+                        '@graph': [
+                            {
+                                '@type': 'Organization',
+                                '@id': `${SITE_URL}/#organization`,
+                                name: BRAND.name,
+                                alternateName: BRAND.nameLatin,
+                                url: SITE_URL,
+                                logo: `${SITE_URL}/icon-512.png`,
+                            },
+                            {
+                                '@type': 'WebSite',
+                                '@id': `${SITE_URL}/#website`,
+                                name: BRAND.name,
+                                url: SITE_URL,
+                                inLanguage: 'fa-IR',
+                                description: BRAND.description,
+                                publisher: { '@id': `${SITE_URL}/#organization` },
+                                potentialAction: {
+                                    '@type': 'SearchAction',
+                                    target: {
+                                        '@type': 'EntryPoint',
+                                        urlTemplate: `${SITE_URL}/sellers?q={search_term_string}`,
+                                    },
+                                    'query-input': 'required name=search_term_string',
+                                },
+                            },
+                        ],
                     }}
                 />
                 <Provider>

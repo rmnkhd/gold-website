@@ -10,7 +10,7 @@
 - **داده**: `service/api/<feature>` → `api()` (API واقعی :8090). صفحات سئو همان توابع را سمت سرور با ISR ۶۰ ثانیه می‌خوانند و در خطا فهرست خالی می‌گیرند.
 - **سئو از روز اول**: هر صفحه `generateMetadata` اختصاصی + JSON-LD (`components/seo/json-ld.tsx`) + ورودی در `sitemap.ts`.
 - **PWA**: `app/manifest.ts`، `public/sw.js` (ثبت در `components/pwa/sw-register.tsx`)، صفحه‌ی `/offline`. ناوبری موبایل = نوار پایین (حس اپ)، دسکتاپ = هدر.
-- محاسبه‌ی قیمت: `src/lib/gold-pricing.ts` (تابع خالص + تست)، همان منطق پنل.
+- هیچ فرمول قیمت/مالیاتی در فرانت نیست: محاسبه‌گر → `/v1/public/calculate` (پیش‌فرض‌ها از `/v1/public/calculator-config`)، برآورد قلم‌ها → فیلد `estimatedTotal` که سرور با نرخ همان فروشگاه می‌دهد.
 - لاجوردی = سطوح/متن اصلی، طلایی = تأکید (CTA، نشان، عدد کلیدی).
 
 ```bash

@@ -4,6 +4,7 @@ import Link from 'next/link';
 // Statics And Types
 import { BRAND, PANEL_URL } from '@/constants/brand';
 import { MAIN_NAV } from '@/statics/navigation';
+import { INFO_PAGES } from '@/statics/pages';
 
 // Components
 import Logo from '@/components/layout/logo';
@@ -26,6 +27,13 @@ export default function SiteFooter() {
                             <li key={item.href}>
                                 <Link href={item.href} className="hover:text-gold-300">
                                     {item.label}
+                                </Link>
+                            </li>
+                        ))}
+                        {INFO_PAGES.map((p) => (
+                            <li key={p.slug}>
+                                <Link href={`/${p.slug}`} className="hover:text-gold-300">
+                                    {p.title}
                                 </Link>
                             </li>
                         ))}

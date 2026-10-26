@@ -1,9 +1,23 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { ageLabel, describePrice, STALE_AFTER_SECONDS } from './price-status.ts';
+import { ageLabel, describePrice, priceStatusDetail, STALE_AFTER_SECONDS } from './price-status.ts';
 
 const live = { source: 'live:navasan', stale: false, ageSeconds: 4 };
+
+it('distinguishes an enabled but rejected feed from an unconfigured feed', () => {
+    for (const feedState of ['pending', 'rejected', 'verified', 'disabled'] as const) {
+        const s = describePrice({ source: 'seed', stale: true, ageSeconds: 900, feedState }, { elapsedSeconds: 0, failed: false });
+        assert.equal(s.state, 'sample');
+        assert.equal(s.feedState, feedState);
+        const detail = priceStatusDetail(s);
+        assert.ok(!detail.includes('تا اتصال'));
+        if (feedState === 'rejected') assert.equal(detail, 'دادهٔ منابع تأیید نشد');
+        if (feedState === 'disabled') assert.equal(detail, 'فید زنده غیرفعال است');
+    }
+    assert.equal(priceStatusDetail({ state: 'sample', ageSeconds: 0 }), 'قیمت زنده هنوز تأیید نشده');
+    assert.equal(priceStatusDetail({ state: 'stale', ageSeconds: 600, feedState: 'rejected' }), 'دادهٔ منابع تأیید نشد · آخرین به‌روزرسانی ۱۰ دقیقه پیش');
+});
 
 describe('describePrice', () => {
     it('قرائت زنده و تازه = live', () => {

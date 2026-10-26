@@ -15,6 +15,7 @@ export interface MarketPrices {
     /** منبع قیمت؛ تا وصل شدن فید واقعی «simulated» است */
     source: string;
     /** سن آخرین قرائت هنگام پاسخ (ثانیه) */
+    feedState?: 'disabled' | 'pending' | 'rejected' | 'verified';
     ageSeconds: number;
     /** بیش از ۵ دقیقه بی‌قرائت تازه */
     stale: boolean;

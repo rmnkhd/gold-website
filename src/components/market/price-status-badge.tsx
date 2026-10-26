@@ -5,7 +5,7 @@ import type { PriceState, PriceStatus } from '@/lib/price-status';
 import { Icon, type IconName } from '@/components/icon';
 
 // Utils And Hooks
-import { ageLabel } from '@/lib/price-status';
+import { priceStatusDetail } from '@/lib/price-status';
 import { cn } from '@/lib/utils';
 
 const STATE_VIEW: Record<
@@ -51,12 +51,7 @@ export default function PriceStatusBadge({
     className?: string;
 }) {
     const v = STATE_VIEW[status.state];
-    const detail =
-        status.state === 'sample'
-            ? 'تا اتصال به فید زنده'
-            : status.state === 'live'
-              ? ageLabel(status.ageSeconds)
-              : `آخرین به‌روزرسانی ${ageLabel(status.ageSeconds)}`;
+    const detail = priceStatusDetail(status);
 
     return (
         <p
@@ -69,13 +64,14 @@ export default function PriceStatusBadge({
         >
             <span className={cn('size-1.5 shrink-0 rounded-full', v.dot)} aria-hidden="true" />
             <Icon name={v.icon} className="size-3.5" />
-            <span className="sr-only">{v.sr}. </span>
+            <span className="sr-only">{v.sr}. {detail}. </span>
             <span className="font-semibold" aria-hidden="true">
                 {v.label}
             </span>
             <span className="text-white/70" aria-hidden="true">
                 · {detail}
             </span>
+            {status.source?.includes('gheymat') && <a href="https://gheymat.online" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">قیمت آنلاین</a>}
             {status.source?.includes('talasanj') && <a href="https://talasanj.info" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">قیمت‌ها از طلاسنج</a>}
         </p>
     );

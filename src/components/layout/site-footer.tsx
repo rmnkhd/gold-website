@@ -2,6 +2,7 @@
 import Link from 'next/link';
 
 // Statics And Types
+import { SellerCtaLink } from '@/components/analytics/tracked-link';
 import { BRAND, PANEL_URL } from '@/constants/brand';
 import { MAIN_NAV } from '@/statics/navigation';
 import { INFO_PAGES } from '@/statics/pages';
@@ -37,6 +38,16 @@ export default function SiteFooter() {
                                 </Link>
                             </li>
                         ))}
+                        <li>
+                            <Link href="/glossary" className="hover:text-gold-300">
+                                واژه‌نامه‌ی طلا
+                            </Link>
+                        </li>
+                        <li>
+                            <SellerCtaLink panelUrl={PANEL_URL} className="hover:text-gold-300">
+                                ثبت‌نام طلافروشان
+                            </SellerCtaLink>
+                        </li>
                         <li>
                             <a href={PANEL_URL} className="hover:text-gold-300">
                                 ورود طلافروشان

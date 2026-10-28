@@ -19,6 +19,7 @@ import CitySelect from '@/components/shared/city-select';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Services
+import { track } from '@/service/analytics';
 import { GET_COMPARE, GET_MARKET_INDEX, getCompare, getMarketIndex } from '@/service/api/market';
 
 // Utils And Hooks
@@ -60,9 +61,10 @@ export default function ComparePage() {
 
             <Form {...form}>
                 <form
-                    onSubmit={form.handleSubmit((v) =>
-                        setQuery({ karat: Number(v.karat), weight: Number(v.weight), city: v.city || undefined })
-                    )}
+                    onSubmit={form.handleSubmit((v) => {
+                        track('compare_used');
+                        setQuery({ karat: Number(v.karat), weight: Number(v.weight), city: v.city || undefined });
+                    })}
                     className="grid grid-cols-3 gap-3 rounded-2xl border bg-card p-4"
                     noValidate
                 >

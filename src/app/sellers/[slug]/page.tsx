@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { SITE_URL } from '@/constants/brand';
 
 // Components
+import { TrackedAnchor } from '@/components/analytics/tracked-link';
 import { Icon } from '@/components/icon';
 import JsonLd from '@/components/seo/json-ld';
 import BookingForm from '@/components/sellers/booking-form';
@@ -122,10 +123,10 @@ export default async function SellerPage({ params }: SellerPageProps) {
                 </ul>
                 <div className="mt-5 flex flex-wrap gap-3">
                     <Button asChild variant="gold" size="lg">
-                        <a href={`tel:${seller.phone}`}>
+                        <TrackedAnchor event="phone_click" href={`tel:${seller.phone}`}>
                             <Icon name="phone" />
                             تماس با فروشگاه
-                        </a>
+                        </TrackedAnchor>
                     </Button>
                     {seller.lat !== null && seller.lng !== null ? (
                         <Button

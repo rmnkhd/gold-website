@@ -1,13 +1,17 @@
 // React
 import type { Metadata } from 'next';
 
+// Statics And Types
+import { PRICE_INSTRUMENTS } from '@/statics/price-instruments';
+
 // Components
+import InstrumentLinks from '@/components/market/instrument-links';
 import LivePrices from '@/components/market/live-prices';
 import PricesSnapshot, { isVerifiedLive } from '@/components/market/prices-snapshot';
 import JsonLd from '@/components/seo/json-ld';
 
 // Services
-import { getMarketPricesServer } from '@/service/api/market';
+import { getMarketPricesServer, getPriceHistoryServer } from '@/service/api/market';
 
 // Utils And Hooks
 import { breadcrumbLd, pageMetadata } from '@/lib/seo';
@@ -28,7 +32,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PricesPage() {
-    const prices = await getMarketPricesServer();
+    const [prices, histories] = await Promise.all([
+        getMarketPricesServer(),
+        Promise.all(PRICE_INSTRUMENTS.map((i) => getPriceHistoryServer(i.key, '7d'))),
+    ]);
+    const cards = PRICE_INSTRUMENTS.map((instrument, n) => ({ instrument, summary: histories[n]?.summary }));
     return (
         <main className="container-page py-8">
             <JsonLd data={breadcrumbLd([{ name: 'قیمت طلا و سکه', path: '/prices' }])} />
@@ -38,6 +46,7 @@ export default async function PricesPage() {
             </p>
             <LivePrices />
             <PricesSnapshot prices={prices} />
+            <InstrumentLinks cards={cards} />
         </main>
     );
 }

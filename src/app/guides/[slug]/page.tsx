@@ -5,12 +5,14 @@ import { notFound } from 'next/navigation';
 
 // Statics And Types
 import { BRAND, SITE_URL } from '@/constants/brand';
+import { GUIDE_LINKS } from '@/statics/guide-links';
 import { getGuide, GUIDES } from '@/statics/guides';
 
 // Components
+import GuideCta from '@/components/analytics/guide-cta';
+import SellerBanner from '@/components/marketing/seller-banner';
 import JsonLd from '@/components/seo/json-ld';
 import PlatformNotice from '@/components/shared/platform-notice';
-import { Button } from '@/components/ui/button';
 
 // Utils And Hooks
 import { breadcrumbLd, OG_IMAGE, pageMetadata } from '@/lib/seo';
@@ -52,7 +54,9 @@ export default async function GuidePage({ params }: GuidePageProps) {
     const { slug } = await params;
     const guide = getGuide(slug);
     if (!guide) notFound();
-    const related = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 2);
+    const meta = GUIDE_LINKS[guide.slug];
+    const related = (meta?.related ?? []).map((s) => getGuide(s)).filter((g): g is NonNullable<typeof g> => Boolean(g));
+    const fallback = related.length ? related : GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 2);
 
     return (
         <main className="container-page max-w-3xl py-8">
@@ -99,13 +103,13 @@ export default async function GuidePage({ params }: GuidePageProps) {
                 </section>
             ))}
 
-            {related.length ? (
+            {fallback.length ? (
                 <nav className="mt-10" aria-labelledby="related-title">
                     <h2 id="related-title" className="mb-3 text-lg font-bold">
                         بیشتر بخوانید
                     </h2>
                     <ul className="grid gap-3 sm:grid-cols-2">
-                        {related.map((g) => (
+                        {fallback.map((g) => (
                             <li key={g.slug}>
                                 <Link
                                     href={`/guides/${g.slug}`}
@@ -122,14 +126,27 @@ export default async function GuidePage({ params }: GuidePageProps) {
                 </nav>
             ) : null}
 
+            {meta?.links.length ? (
+                <nav className="mt-10" aria-labelledby="links-title">
+                    <h2 id="links-title" className="mb-3 text-lg font-bold">
+                        صفحه‌های مرتبط
+                    </h2>
+                    <ul className="flex flex-wrap gap-2">
+                        {meta.links.map((l) => (
+                            <li key={l.href}>
+                                <Link href={l.href} className="inline-block rounded-full border bg-card px-3 py-1.5 text-xs hover:border-gold-300">
+                                    {l.label}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            ) : null}
+
             <PlatformNotice className="mt-10" />
 
-            <div className="mt-6 rounded-2xl bg-brand-50 p-5">
-                <p className="font-semibold">قیمت را خودتان بسنجید</p>
-                <Button asChild variant="gold" className="mt-3">
-                    <Link href="/calculator">رفتن به محاسبه‌گر</Link>
-                </Button>
-            </div>
+            <GuideCta />
+            <SellerBanner className="mt-6" />
             <p className="mt-6 text-xs leading-6 text-muted-foreground">
                 این مطلب اطلاعات عمومی است و جایگزین مشاوره‌ی حقوقی، مالی یا مالیاتی نیست.
             </p>

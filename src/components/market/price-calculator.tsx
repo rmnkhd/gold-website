@@ -1,6 +1,7 @@
 'use client';
 
 // React
+import { useEffect, useRef } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
@@ -30,6 +31,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Services
+import { track } from '@/service/analytics';
 import { calculateJewelry, GET_CALCULATE, GET_CALCULATOR_CONFIG, getCalculatorConfig } from '@/service/api/market';
 
 // Utils And Hooks
@@ -93,6 +95,14 @@ function CalculatorForm({ config }: { config: CalculatorConfig }) {
         !Number.isNaN(params.wagePercent) &&
         !Number.isNaN(params.profitPercent);
     const debounced = useDebouncedValue(valid ? JSON.stringify(params) : '', 300);
+    const tracked = useRef(false);
+    useEffect(() => {
+        // اولین محاسبه‌ی معتبر در هر بار بازدید = «استفاده از محاسبه‌گر»
+        if (debounced !== '' && !tracked.current && form.formState.isDirty) {
+            tracked.current = true;
+            track('calc_used');
+        }
+    }, [debounced, form.formState.isDirty]);
     const result = useQuery({
         queryKey: [GET_CALCULATE, debounced],
         queryFn: () => calculateJewelry(JSON.parse(debounced)),

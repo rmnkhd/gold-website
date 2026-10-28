@@ -14,6 +14,9 @@ import type {
 // Services
 import { api, ApiError } from '@/service/http-client';
 
+// Utils And Hooks
+import type { PriceHistory, RangeKey } from '@/lib/price-history';
+
 export const GET_MARKET_PRICES = 'GET_MARKET_PRICES';
 export const GET_SELLERS = 'GET_SELLERS';
 export const GET_SELLER = 'GET_SELLER';
@@ -31,6 +34,15 @@ export const getMarketPrices = (): Promise<GenericResponse<MarketPrices>> =>
 export const getMarketPricesServer = async (): Promise<MarketPrices | undefined> => {
     try {
         return (await api<MarketPrices>('/v1/public/prices', { auth: false, revalidate: ISR })).data;
+    } catch {
+        return undefined;
+    }
+};
+
+/** تاریخچه‌ی روزانه‌ی یک ابزار قیمت برای صفحه‌های سئو؛ کش ۵ دقیقه‌ای و در خطا `undefined` */
+export const getPriceHistoryServer = async (instrument: string, range: RangeKey): Promise<PriceHistory | undefined> => {
+    try {
+        return (await api<PriceHistory>(`/v1/public/prices/history?instrument=${instrument}&range=${range}`, { auth: false, revalidate: 300 })).data;
     } catch {
         return undefined;
     }

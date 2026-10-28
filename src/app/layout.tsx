@@ -11,6 +11,7 @@ import Provider from './provider';
 import BottomNav from '@/components/layout/bottom-nav';
 import SiteFooter from '@/components/layout/site-footer';
 import SiteHeader from '@/components/layout/site-header';
+import Tracker from '@/components/analytics/tracker';
 import SwRegister from '@/components/pwa/sw-register';
 import JsonLd from '@/components/seo/json-ld';
 import { Toaster } from '@/components/ui/sonner';
@@ -100,6 +101,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </Provider>
                 <Toaster position="top-center" closeButton />
                 <SwRegister />
+                <Tracker />
             </body>
         </html>
     );

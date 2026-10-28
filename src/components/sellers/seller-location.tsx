@@ -1,4 +1,5 @@
 // Components
+import { TrackedAnchor } from '@/components/analytics/tracked-link';
 import { Icon } from '@/components/icon';
 import LocationMap from '@/components/map/location-map-lazy';
 import { Button } from '@/components/ui/button';
@@ -44,10 +45,10 @@ export default function SellerLocation({ name, city, address, lat, lng }: Seller
             <div className="mt-3 flex flex-wrap gap-2">
                 {routes.map((r, i) => (
                     <Button key={r.href} asChild variant={i === 0 ? 'gold' : 'outline'} size="sm">
-                        <a href={r.href} target="_blank" rel="noopener noreferrer">
+                        <TrackedAnchor event="directions_click" href={r.href} target="_blank" rel="noopener noreferrer">
                             <Icon name="navigation" />
                             {r.label}
-                        </a>
+                        </TrackedAnchor>
                     </Button>
                 ))}
             </div>

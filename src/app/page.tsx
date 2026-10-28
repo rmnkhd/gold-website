@@ -10,6 +10,7 @@ import { PLATFORM_FAQ } from '@/statics/platform-notice';
 // Components
 import { Icon, type IconName } from '@/components/icon';
 import LivePrices from '@/components/market/live-prices';
+import SellerBanner from '@/components/marketing/seller-banner';
 import PriceTicker from '@/components/market/price-ticker';
 import Reveal from '@/components/motion/reveal';
 import Slogan from '@/components/motion/slogan';
@@ -182,6 +183,10 @@ export default async function HomePage() {
                         </Reveal>
                     ))}
                 </div>
+            </section>
+
+            <section className="container-page py-4" aria-label="دعوت طلافروشان">
+                <SellerBanner />
             </section>
 
             <section className="container-page py-8" aria-labelledby="faq-title">

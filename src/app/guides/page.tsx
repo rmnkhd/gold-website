@@ -27,6 +27,11 @@ export default function GuidesPage() {
             <p className="mt-2 mb-6 text-sm text-muted-foreground">
                 مطالب عمومی و آموزشی؛ مشاوره‌ی مالی یا حقوقی نیستند.
             </p>
+            <p className="mb-6 text-sm">
+                <Link href="/glossary" className="text-gold-700 hover:underline">
+                    معنی واژه‌های بازار طلا را در واژه‌نامه ببینید
+                </Link>
+            </p>
             <PlatformNotice className="mb-6" />
             <div className="stagger grid gap-4 sm:grid-cols-2">
                 {GUIDES.map((g) => (

@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea';
 // Services
 import { marketPricesOptions } from '@/service/api/market';
 import { createOrder, GET_MY_ORDERS } from '@/service/api/account';
+import { track } from '@/service/analytics';
 
 // Utils And Hooks
 import { useSession } from '@/hooks/use-session';
@@ -74,6 +75,7 @@ export default function OrderPanel({ seller }: { seller: Seller }) {
         mutationFn: createOrder,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [GET_MY_ORDERS] });
+            track('order_placed');
             showSuccess('سفارش شما برای فروشنده ارسال شد');
         },
         onError: (error: unknown) =>

@@ -1,13 +1,14 @@
 // Statics And Types
-import type { Guide } from '@/dto/market';
-import { PLATFORM_NOTICE } from '@/statics/platform-notice';
+import type { Guide } from '../dto/market.ts';
+import { MORE_GUIDES } from './guides-more.ts';
+import { PLATFORM_NOTICE } from './platform-notice.ts';
 
 /**
  * محتوای راهنماها (اطلاعات عمومی، نه مشاوره‌ی مالی/حقوقی).
  * افزودن راهنمای تازه = افزودن یک آیتم به این آرایه؛ مسیر `/guides/<slug>` خودکار ساخته می‌شود.
  * عددها و قوانین پیش از انتشار نهایی با منبع رسمی/حسابدار صنف تطبیق داده شوند.
  */
-export const GUIDES: Guide[] = [
+export const CORE_GUIDES: Guide[] = [
     {
         slug: 'ojrat-chist',
         title: 'اجرت طلا چیست و چطور حساب می‌شود؟',
@@ -60,6 +61,13 @@ export const GUIDES: Guide[] = [
                 paragraphs: [
                     'فاکتور رسمی با ذکر وزن، عیار، اجرت، سود و مالیات بگیرید.',
                     'شرایط بازخرید و کسر اجرت هنگام فروش مجدد را پیش از خرید بپرسید و روی فاکتور یادداشت کنید.',
+                ],
+            },
+            {
+                heading: 'پس از خرید',
+                paragraphs: [
+                    'فاکتور را همراه جواهر نگه دارید و عکس قطعه با وزن و عیار را در گوشی ذخیره کنید؛ در بازخرید یا تعویض، همین مدارک پشتوانه‌ی شماست.',
+                    'برای فهمیدن معنی هر واژه‌ی فاکتور، واژه‌نامه‌ی طلا را ببینید.',
                 ],
             },
         ],
@@ -190,5 +198,8 @@ export const GUIDES: Guide[] = [
         ],
     },
 ];
+
+/** همه‌ی راهنماها: هسته + موتور محتوا (`guides-more.ts`) */
+export const GUIDES: Guide[] = [...CORE_GUIDES, ...MORE_GUIDES];
 
 export const getGuide = (slug: string): Guide | undefined => GUIDES.find((g) => g.slug === slug);

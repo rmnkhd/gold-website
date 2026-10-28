@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/constants/brand';
 import { GUIDES } from '@/statics/guides';
 import { INFO_PAGES } from '@/statics/pages';
+import { PRICE_INSTRUMENTS } from '@/statics/price-instruments';
 
 // Services
 import { getAllSellers } from '@/service/api/market';
@@ -19,6 +20,7 @@ const FIXED: { path: string; changeFrequency: Entry['changeFrequency']; priority
     { path: '/sellers', changeFrequency: 'daily', priority: 0.8 },
     { path: '/compare', changeFrequency: 'weekly', priority: 0.6 },
     { path: '/guides', changeFrequency: 'weekly', priority: 0.6 },
+    { path: '/glossary', changeFrequency: 'monthly', priority: 0.6 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -32,6 +34,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             url: `${SITE_URL}${f.path}`,
             changeFrequency: f.changeFrequency,
             priority: f.priority,
+        })),
+        ...PRICE_INSTRUMENTS.map((i) => ({
+            url: `${SITE_URL}/prices/${i.slug}`,
+            changeFrequency: 'daily' as const,
+            priority: 0.8,
         })),
         ...sellers.map((s) => ({
             url: `${SITE_URL}/sellers/${s.slug}`,

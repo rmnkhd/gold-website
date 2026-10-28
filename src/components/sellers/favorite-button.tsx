@@ -10,6 +10,7 @@ import { Icon } from '@/components/icon';
 import { Button } from '@/components/ui/button';
 
 // Services
+import { track } from '@/service/analytics';
 import {
     GET_FAVORITES,
     getFavorites,
@@ -52,7 +53,10 @@ export default function FavoriteButton({
             target.kind === 'shop'
                 ? setFavoriteShop(target.slug, !active)
                 : setFavoriteItem(target.id, !active),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: [GET_FAVORITES] }),
+        onSuccess: () => {
+            if (!active) track('favorite_added');
+            return queryClient.invalidateQueries({ queryKey: [GET_FAVORITES] });
+        },
         onError: (error: unknown) =>
             showError(error instanceof Error ? error.message : 'ثبت علاقه‌مندی ناموفق بود'),
     });

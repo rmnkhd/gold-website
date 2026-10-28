@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 
 // Services
+import { track } from '@/service/analytics';
 import { loginOrRegister, requestOtp } from '@/service/auth-store';
 
 // Utils And Hooks
@@ -70,6 +71,7 @@ function LoginForm() {
                 return;
             }
             await loginOrRegister(values.phone, values.code, values.name);
+            track('login_succeeded');
             router.replace(next);
         } catch (error) {
             const message = error instanceof Error ? error.message : 'خطای ناشناخته';

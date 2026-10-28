@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 // Services
 import { createBooking, GET_MY_BOOKINGS } from '@/service/api/account';
+import { track } from '@/service/analytics';
 
 // Utils And Hooks
 import { loginHref } from '@/lib/login-href';
@@ -61,6 +62,7 @@ export default function BookingForm({ slug }: { slug: string }) {
             }),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [GET_MY_BOOKINGS] });
+            track('booking_placed');
             showSuccess('درخواست بازدید برای فروشنده ارسال شد؛ پس از تأیید خبر می‌دهیم');
             form.reset();
             setOpen(false);

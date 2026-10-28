@@ -94,6 +94,8 @@ export default function AccountPage() {
     const router = useRouter();
     const { session, ready } = useSession();
     const [tab, setTab] = useState<Tab>('orders');
+    const inbox = useQuery({ queryKey: [GET_NOTIFICATIONS], queryFn: getNotifications, enabled: Boolean(session) });
+    const unread = inbox.data?.data?.unread ?? 0;
     /** بعد از «خروج» به خانه می‌رویم، نه صفحه‌ی ورود */
     const leaving = useRef(false);
 
@@ -126,8 +128,13 @@ export default function AccountPage() {
             <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-6">
                 <TabsList className="w-full overflow-x-auto">
                     {TABS.map((t) => (
-                        <TabsTrigger key={t.value} value={t.value} disabled={t.value === 'inbox'}>
-                            {t.value === 'inbox' ? 'اعلان‌ها · به زودی' : t.label}
+                        <TabsTrigger key={t.value} value={t.value}>
+                            {t.label}
+                            {t.value === 'inbox' && unread > 0 ? (
+                                <span className="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[11px] font-bold text-brand-950">
+                                    {toPersianDigits(unread)}
+                                </span>
+                            ) : null}
                         </TabsTrigger>
                     ))}
                 </TabsList>

@@ -1,8 +1,11 @@
 // React
 import type { Metadata } from 'next';
 
+// Components
+import JsonLd from '@/components/seo/json-ld';
+
 // Utils And Hooks
-import { pageMetadata } from '@/lib/seo';
+import { breadcrumbLd, pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
     title: 'مقایسه‌ی قیمت جواهر میان فروشندگان',
@@ -12,5 +15,10 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function CompareLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return children;
+    return (
+        <>
+            <JsonLd data={breadcrumbLd([{ name: 'مقایسه‌ی قیمت جواهر', path: '/compare' }])} />
+            {children}
+        </>
+    );
 }

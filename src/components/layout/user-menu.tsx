@@ -21,6 +21,7 @@ import {
 import { logout } from '@/service/auth-store';
 
 // Utils And Hooks
+import { loginHref } from '@/lib/login-href';
 import { useSession } from '@/hooks/use-session';
 
 /** ورود/ثبت‌نام یا منوی حساب مشتری (سفارش‌های من، خروج) */
@@ -34,7 +35,7 @@ export default function UserMenu() {
     if (!session) {
         return (
             <Button asChild variant="gold" size="sm">
-                <Link href={`/login?next=${encodeURIComponent(pathname)}`}>ورود / ثبت‌نام</Link>
+                <Link href={loginHref(pathname)}>ورود / ثبت‌نام</Link>
             </Button>
         );
     }

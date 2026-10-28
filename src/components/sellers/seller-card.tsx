@@ -9,6 +9,7 @@ import { Icon } from '@/components/icon';
 import { Badge } from '@/components/ui/badge';
 
 // Utils And Hooks
+import { placeLabel } from '@/lib/place-label';
 import { toPersianDigits } from '@/utils/number';
 
 export default function SellerCard({ seller }: { seller: Seller }) {
@@ -22,7 +23,7 @@ export default function SellerCard({ seller }: { seller: Seller }) {
                     <h3 className="truncate font-semibold">{seller.name}</h3>
                     <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                         <Icon name="map-pin" className="size-3.5" />
-                        {seller.city} · {seller.district}
+                        {placeLabel(seller.city, seller.district)}
                     </p>
                 </div>
                 {seller.verified ? (

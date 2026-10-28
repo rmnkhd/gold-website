@@ -27,6 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { createBooking, GET_MY_BOOKINGS } from '@/service/api/account';
 
 // Utils And Hooks
+import { loginHref } from '@/lib/login-href';
 import { useSession } from '@/hooks/use-session';
 import { todayJalali } from '@/utils/date-time';
 import { showError, showSuccess } from '@/utils/toast';
@@ -71,7 +72,7 @@ export default function BookingForm({ slug }: { slug: string }) {
     if (ready && !session) {
         return (
             <Button asChild variant="outline" size="lg" className="mt-3 w-full">
-                <Link href={`/login?next=${encodeURIComponent(pathname)}`}>
+                <Link href={loginHref(pathname)}>
                     <Icon name="calendar" />
                     برای رزرو بازدید وارد شوید
                 </Link>

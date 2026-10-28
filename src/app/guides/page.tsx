@@ -6,10 +6,11 @@ import Link from 'next/link';
 import { GUIDES } from '@/statics/guides';
 
 // Components
+import JsonLd from '@/components/seo/json-ld';
 import PlatformNotice from '@/components/shared/platform-notice';
 
 // Utils And Hooks
-import { pageMetadata } from '@/lib/seo';
+import { breadcrumbLd, pageMetadata } from '@/lib/seo';
 import { toPersianDigits } from '@/utils/number';
 
 export const metadata: Metadata = pageMetadata({
@@ -21,6 +22,7 @@ export const metadata: Metadata = pageMetadata({
 export default function GuidesPage() {
     return (
         <main className="container-page py-8">
+            <JsonLd data={breadcrumbLd([{ name: 'راهنمای خرید طلا', path: '/guides' }])} />
             <h1 className="text-2xl font-extrabold lg:text-3xl">راهنمای خرید طلا</h1>
             <p className="mt-2 mb-6 text-sm text-muted-foreground">
                 مطالب عمومی و آموزشی؛ مشاوره‌ی مالی یا حقوقی نیستند.

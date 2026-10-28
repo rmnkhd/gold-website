@@ -1,9 +1,24 @@
 /* Service worker زرینه — کش ساده: دارایی‌های استاتیک cache-first، صفحات network-first با فالبک آفلاین */
-const CACHE = 'zarineh-v2';
+const CACHE = 'zarineh-v3';
 const OFFLINE_URL = '/offline';
 
+/* صفحه‌ی آفلاین همراه دارایی‌هایی که خودش لازم دارد (CSS/JS) پیش‌کش می‌شود؛ وگرنه آفلاین بی‌استایل می‌ماند */
+const precacheOffline = async () => {
+    const cache = await caches.open(CACHE);
+    const res = await fetch(OFFLINE_URL);
+    if (!res.ok) return;
+    const html = await res.clone().text();
+    await cache.put(OFFLINE_URL, res);
+    const assets = [...new Set(html.match(/\/_next\/static\/[^"'\s)]+\.(?:css|js)/g) || [])];
+    await Promise.all(
+        assets.map((a) =>
+            fetch(a).then((r) => (r.ok ? cache.put(a, r) : undefined)).catch(() => undefined)
+        )
+    );
+};
+
 self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([OFFLINE_URL])));
+    event.waitUntil(precacheOffline());
     self.skipWaiting();
 });
 
@@ -28,8 +43,10 @@ self.addEventListener('fetch', (event) => {
                 (hit) =>
                     hit ||
                     fetch(request).then((res) => {
-                        const copy = res.clone();
-                        caches.open(CACHE).then((c) => c.put(request, copy));
+                        if (res.ok) {
+                            const copy = res.clone();
+                            caches.open(CACHE).then((c) => c.put(request, copy));
+                        }
                         return res;
                     })
             )

@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import StalePriceNotice from '@/components/market/stale-price-notice';
 import CitySelect from '@/components/shared/city-select';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -109,6 +110,8 @@ export default function ComparePage() {
                     </Button>
                 </form>
             </Form>
+
+            {query ? <StalePriceNotice className="mt-6" /> : null}
 
             {results.isFetching ? <Skeleton className="mt-6 h-40 rounded-2xl" /> : null}
 

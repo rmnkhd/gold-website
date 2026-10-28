@@ -18,6 +18,7 @@ import {
 } from '@/service/api/account';
 
 // Utils And Hooks
+import { loginHref } from '@/lib/login-href';
 import { useSession } from '@/hooks/use-session';
 import { cn } from '@/lib/utils';
 import { showError } from '@/utils/toast';
@@ -70,7 +71,7 @@ export default function FavoriteButton({
     if (!session) {
         return (
             <Button asChild variant="ghost" size="icon" aria-label={`${label} (نیازمند ورود)`}>
-                <Link href={`/login?next=${encodeURIComponent(pathname)}`}>{heart}</Link>
+                <Link href={loginHref(pathname)}>{heart}</Link>
             </Button>
         );
     }

@@ -2,7 +2,7 @@
 import type { GenericResponse } from '@/dto/common';
 
 // Services
-import { getAccessToken, refreshSession } from '@/service/auth-store';
+import { ensureAccessToken, getAccessToken, refreshSession } from '@/service/auth-store';
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8090').replace(/\/$/, '');
 
@@ -70,7 +70,7 @@ async function parse<T>(res: Response): Promise<GenericResponse<T>> {
 /** درخواست JSON با توکن و نوسازی خودکار نشست (یک‌بار تلاش مجدد پس از ۴۰۱) */
 export async function api<T>(path: string, opts: Options = {}): Promise<GenericResponse<T>> {
     const useAuth = opts.auth !== false;
-    let res = await send(path, opts, useAuth ? getAccessToken() : null);
+    let res = await send(path, opts, useAuth ? await ensureAccessToken() : null);
     if (res.status === 401 && useAuth) {
         const ok = await refreshSession();
         if (ok) res = await send(path, opts, getAccessToken());
@@ -80,7 +80,7 @@ export async function api<T>(path: string, opts: Options = {}): Promise<GenericR
 
 /** دانلود فایل (CSV/JSON) با توکن */
 export async function download(path: string, filename: string): Promise<void> {
-    let res = await send(path, {}, getAccessToken());
+    let res = await send(path, {}, await ensureAccessToken());
     if (res.status === 401 && (await refreshSession())) res = await send(path, {}, getAccessToken());
     if (!res.ok) {
         throw new ApiError(res.status, 'download', 'دانلود ناموفق بود');

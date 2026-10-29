@@ -26,6 +26,12 @@ const iranSans = localFont({
     display: 'swap',
 });
 
+/**
+ * CSP با nonce (src/proxy.ts) فقط روی صفحه‌ی پویا کار می‌کند، پس HTML هر درخواست رندر می‌شود (داده‌ی API همچنان با ISR کش است)
+ * و CDN نمی‌تواند خودِ HTML را کش کند؛ دارایی‌های `/_next/static` همچنان immutable و کش‌پذیرند. تصمیم → vault: decisions/CSP با nonce.
+ */
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
     title: {

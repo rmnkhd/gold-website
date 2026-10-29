@@ -1,6 +1,20 @@
-/* Service worker زرینه — کش ساده: دارایی‌های استاتیک cache-first، صفحات network-first با فالبک آفلاین */
-const CACHE = 'zarineh-v3';
+/* Service worker زرینه — دارایی‌های استاتیک cache-first (سقف‌دار)، صفحات عمومی network-first با نسخه‌ی آخرِ دیده‌شده
+   برای آفلاین (سقف‌دار)، و صفحه‌ی آفلاین وقتی صفحه هرگز دیده نشده. صفحه‌های شخصی هرگز کش نمی‌شوند. */
+const CACHE = 'zarineh-v4';
+const PAGES = 'zarineh-pages-v4';
 const OFFLINE_URL = '/offline';
+const MAX_STATIC = 120;
+const MAX_PAGES = 40;
+/* صفحه‌ی شخصی/فنی که نباید در کش بماند */
+const PRIVATE_PREFIXES = ['/account', '/login', '/verify/', '/offline'];
+
+const cacheablePage = (pathname) => !PRIVATE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));
+
+/* قدیمی‌ترین ورودی‌ها را کنار می‌گذارد تا کش بی‌انتها رشد نکند */
+const trim = async (cache, max) => {
+    const keys = await cache.keys();
+    for (let i = 0; i < keys.length - max; i++) await cache.delete(keys[i]);
+};
 
 /* صفحه‌ی آفلاین همراه دارایی‌هایی که خودش لازم دارد (CSS/JS) پیش‌کش می‌شود؛ وگرنه آفلاین بی‌استایل می‌ماند */
 const precacheOffline = async () => {
@@ -26,7 +40,7 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches
             .keys()
-            .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+            .then((keys) => Promise.all(keys.filter((k) => k !== CACHE && k !== PAGES).map((k) => caches.delete(k))))
     );
     self.clients.claim();
 });
@@ -45,7 +59,12 @@ self.addEventListener('fetch', (event) => {
                     fetch(request).then((res) => {
                         if (res.ok) {
                             const copy = res.clone();
-                            caches.open(CACHE).then((c) => c.put(request, copy));
+                            event.waitUntil(
+                                caches.open(CACHE).then(async (c) => {
+                                    await c.put(request, copy);
+                                    await trim(c, MAX_STATIC);
+                                })
+                            );
                         }
                         return res;
                     })
@@ -55,7 +74,26 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (request.mode === 'navigate') {
-        event.respondWith(fetch(request).catch(() => caches.match(OFFLINE_URL)));
+        event.respondWith(
+            fetch(request)
+                .then((res) => {
+                    if (res.ok && cacheablePage(url.pathname)) {
+                        const copy = res.clone();
+                        event.waitUntil(
+                            caches.open(PAGES).then(async (c) => {
+                                await c.put(request, copy);
+                                await trim(c, MAX_PAGES);
+                            })
+                        );
+                    }
+                    return res;
+                })
+                .catch(async () => {
+                    const pages = await caches.open(PAGES);
+                    const seen = cacheablePage(url.pathname) ? await pages.match(request) : undefined;
+                    return seen || caches.match(OFFLINE_URL);
+                })
+        );
     }
 });
 

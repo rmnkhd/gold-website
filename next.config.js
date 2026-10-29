@@ -1,25 +1,12 @@
 const isProd = process.env.NODE_ENV === 'production';
-const apiOrigin = new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8090').origin;
 
 /**
- * سیاست امنیت محتوا (فقط production؛ dev به eval و websocket نیاز دارد).
- * `'unsafe-inline'` برای اسکریپت‌های درون‌خطی Next و JSON-LD لازم است؛ بدون nonce راه دیگری نیست.
- * تصویر: کاشی نقشه و عکس کالا از https یا data/blob؛ API فقط مبدأ خودش.
+ * آدرس API در build ثابت می‌شود؛ بدون آن، build تولید بی‌صدا به localhost اشاره می‌کرد.
+ * سیاست امنیت محتوا (CSP با nonce) در src/proxy.ts است (دو CSP هم‌زمان اشتراک‌شان اعمال می‌شد).
  */
-const csp = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https:",
-    "font-src 'self' data:",
-    `connect-src 'self' ${apiOrigin}`,
-    "worker-src 'self'",
-    "manifest-src 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'self'",
-].join('; ');
+if (isProd && !process.env.NEXT_PUBLIC_API_URL) {
+    throw new Error('NEXT_PUBLIC_API_URL برای build تولید اجباری است (آدرس عمومی API، مثلاً https://api.example.ir)');
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -69,12 +56,7 @@ const nextConfig = {
                 { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
                 { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
                 { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=(self)' },
-                ...(isProd
-                    ? [
-                          { key: 'Content-Security-Policy', value: csp },
-                          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
-                      ]
-                    : []),
+                ...(isProd ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' }] : []),
             ],
         },
         // برای `/_next/static` هدر دستی نمی‌گذاریم — Next خودش روی دارایی‌های

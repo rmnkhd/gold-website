@@ -37,6 +37,9 @@ const load = (network: Record<string, FakeRes | 'fail'>) => {
                     }
                 },
                 put: async (r: { url: string }, v: FakeRes) => void s.set(key(r), v),
+                keys: async () => [...s.keys()].map((u) => ({ url: u })),
+                delete: async (r: { url: string }) => s.delete(key(r)),
+                match: async (r: string | { url: string }) => s.get(key(r)),
             };
         },
         match: async (r: string | { url: string }) => {
@@ -90,6 +93,58 @@ test('a navigation falls back to the cached offline page when the network is dow
     await sw.run('install', {});
     const out = (await sw.run('fetch', { request: { method: 'GET', url: 'https://zarineh.test/prices', mode: 'navigate' } })) as FakeRes;
     assert.equal(out.body, OFFLINE_HTML);
+});
+
+const nav = (path: string) => ({ request: { method: 'GET', url: 'https://zarineh.test' + path, mode: 'navigate' } });
+
+test('a public page seen online is served from cache when offline (last known content)', async () => {
+    const net: Record<string, FakeRes | 'fail'> = { '/offline': res(OFFLINE_HTML), '/prices': res('<h1>قیمت</h1>') };
+    const sw = load(net);
+    await sw.run('install', {});
+    await sw.run('fetch', nav('/prices'));
+    await new Promise((r) => setTimeout(r, 10));
+    net['/prices'] = 'fail';
+    const out = (await sw.run('fetch', nav('/prices'))) as FakeRes;
+    assert.equal(out.body, '<h1>قیمت</h1>');
+});
+
+test('personal pages are never cached', async () => {
+    const sw = load({ '/offline': res(OFFLINE_HTML), '/account': res('<p>اطلاعات شخصی</p>'), '/login': res('login') });
+    await sw.run('install', {});
+    await sw.run('fetch', nav('/account'));
+    await sw.run('fetch', nav('/login'));
+    await new Promise((r) => setTimeout(r, 10));
+    for (const store of sw.stores.values()) {
+        assert.equal(store.has('/account'), false);
+        assert.equal(store.has('/login'), false);
+    }
+});
+
+test('visited-pages cache is capped (oldest dropped)', async () => {
+    const net: Record<string, FakeRes | 'fail'> = { '/offline': res(OFFLINE_HTML) };
+    for (let i = 0; i < 50; i++) net['/p' + i] = res('page' + i);
+    const sw = load(net);
+    await sw.run('install', {});
+    for (let i = 0; i < 50; i++) {
+        await sw.run('fetch', nav('/p' + i));
+        await new Promise((r) => setTimeout(r, 0));
+    }
+    const pages = sw.stores.get('zarineh-pages-v4')!;
+    assert.equal(pages.size, 40);
+    assert.equal(pages.has('/p0'), false);
+    assert.equal(pages.has('/p49'), true);
+});
+
+test('static cache is capped too', async () => {
+    const net: Record<string, FakeRes | 'fail'> = { '/offline': res(OFFLINE_HTML) };
+    for (let i = 0; i < 130; i++) net['/_next/static/chunks/c' + i + '.js'] = res('js' + i);
+    const sw = load(net);
+    await sw.run('install', {});
+    for (let i = 0; i < 130; i++) {
+        await sw.run('fetch', { request: { method: 'GET', url: 'https://zarineh.test/_next/static/chunks/c' + i + '.js', mode: 'no-cors' } });
+        await new Promise((r) => setTimeout(r, 0));
+    }
+    assert.ok(sw.stores.get('zarineh-v4')!.size <= 120);
 });
 
 test('a failed static asset response is never cached', async () => {

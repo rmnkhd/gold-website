@@ -1,25 +1,26 @@
 /**
  * نشست سایت مردم: ورود/ثبت‌نام یک جریان است (موبایل + کد ۶ رقمی؛ شماره‌ی تازه نام هم می‌دهد).
  *
- * - توکن دسترسی ۱۵ دقیقه‌ای و refresh چرخشی در localStorage؛ استفاده‌ی دوباره‌ی refresh قدیمی همه‌ی
- *   نشست‌های آن مشتری را باطل می‌کند.
+ * - توکن دسترسی ۱۵ دقیقه‌ای فقط در حافظه‌ی تب است و refresh چرخشی در کوکی httpOnly که جاوااسکریپت (و XSS)
+ *   نمی‌تواند بخواند؛ در localStorage فقط پروفایل نمایشی می‌ماند. استفاده‌ی دوباره‌ی refresh قدیمی همه‌ی نشست‌های
+ *   آن مشتری را باطل می‌کند.
+ * - نوسازی بین تب‌ها قفل مشترک دارد و فقط رد قطعی سرور نشست را پاک می‌کند → `refresh.ts`.
  * - تا وصل شدن پیامک، سرور `devCode` را برمی‌گرداند و UI نشانش می‌دهد (vault: شبیه‌سازی‌ها #1).
  */
 
+// Services
+import { createRefresher, RefreshRejected, webLock } from '@/service/refresh';
+
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8090').replace(/\/$/, '');
-const STORAGE_KEY = 'zarineh-front-session-v2';
+const STORAGE_KEY = 'zarineh-front-session-v3';
+/** کلید قدیمی که توکن‌ها را در localStorage نگه می‌داشت؛ هر بار پاک می‌شود */
+const LEGACY_KEY = 'zarineh-front-session-v2';
+const REALM = 'consumer';
 
 export interface Session {
     id: string;
     name: string;
     phone: string;
-}
-
-interface Stored extends Session {
-    accessToken: string;
-    refreshToken: string;
-    /** ms — کمی زودتر از انقضای واقعی */
-    expiresAt: number;
 }
 
 export interface OtpResult {
@@ -31,10 +32,12 @@ export interface OtpResult {
 
 interface SessionPayload {
     accessToken: string;
-    refreshToken: string;
     expiresIn: number;
     consumer: Session;
 }
+
+/** توکن دسترسی فقط در حافظه‌ی همین تب */
+let memory: { accessToken: string; expiresAt: number } | null = null;
 
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
@@ -44,21 +47,22 @@ export const subscribeSession = (listener: () => void): (() => void) => {
     return () => listeners.delete(listener);
 };
 
-const readStored = (): Stored | null => {
+const readProfile = (): Session | null => {
     try {
+        window.localStorage.removeItem(LEGACY_KEY);
         const raw = window.localStorage.getItem(STORAGE_KEY);
-        return raw ? (JSON.parse(raw) as Stored) : null;
+        return raw ? (JSON.parse(raw) as Session) : null;
     } catch {
         return null;
     }
 };
 
-const writeStored = (value: Stored | null): void => {
+const writeProfile = (value: Session | null): void => {
     try {
         if (value) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
         else window.localStorage.removeItem(STORAGE_KEY);
     } catch {
-        // ذخیره‌ی ناموفق = نشست پایدار نمی‌ماند
+        // ذخیره‌ی ناموفق = نشست بعد از بستن تب نمی‌ماند
     }
 };
 
@@ -76,8 +80,7 @@ export const getSessionSnapshot = (): Session | null => {
     if (raw !== cachedRaw) {
         cachedRaw = raw;
         try {
-            const s = raw ? (JSON.parse(raw) as Stored) : null;
-            cachedSession = s ? { id: s.id, name: s.name, phone: s.phone } : null;
+            cachedSession = raw ? (JSON.parse(raw) as Session) : null;
         } catch {
             cachedSession = null;
         }
@@ -85,38 +88,50 @@ export const getSessionSnapshot = (): Session | null => {
     return cachedSession;
 };
 
-export const getAccessToken = (): string | null => readStored()?.accessToken ?? null;
+/** توکن دسترسی معتبر (در حافظه)؛ بعد از ریلود تب تا نوسازی null است */
+export const getAccessToken = (): string | null => (memory && memory.expiresAt > Date.now() ? memory.accessToken : null);
 
-const fromPayload = (p: SessionPayload): Stored => ({
-    id: p.consumer.id,
-    name: p.consumer.name,
-    phone: p.consumer.phone,
-    accessToken: p.accessToken,
-    refreshToken: p.refreshToken,
-    expiresAt: Date.now() + p.expiresIn * 1000 - 15_000,
-});
+const applyPayload = (p: SessionPayload): void => {
+    memory = { accessToken: p.accessToken, expiresAt: Date.now() + p.expiresIn * 1000 - 15_000 };
+    writeProfile({ id: p.consumer.id, name: p.consumer.name, phone: p.consumer.phone });
+    emit();
+};
 
+const dropSession = (): void => {
+    memory = null;
+    writeProfile(null);
+    emit();
+};
+
+class ApiMessageError extends Error {
+    code?: string;
+    status: number;
+    constructor(message: string, status: number, code?: string) {
+        super(message);
+        this.status = status;
+        this.code = code;
+    }
+}
+
+/** POST به مسیرهای احراز هویت؛ کوکی نوسازی (httpOnly) فقط روی /v1/auth می‌رود و X-Client دفاع CSRF است */
 async function post<T>(path: string, body: unknown): Promise<T> {
     let res: Response;
     try {
         res = await fetch(API_URL + path, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-Client': 'web' },
             body: JSON.stringify(body),
         });
     } catch {
-        throw new Error('ارتباط با سرور برقرار نشد؛ اینترنت یا سرور را بررسی کنید');
+        throw new ApiMessageError('ارتباط با سرور برقرار نشد؛ اینترنت یا سرور را بررسی کنید', 0);
     }
     if (res.status === 204) return undefined as T;
     const json = (await res.json().catch(() => ({}))) as {
         data?: T;
         error?: { code?: string; message?: string };
     };
-    if (!res.ok) {
-        const err = new Error(json.error?.message ?? 'خطای ناشناخته') as Error & { code?: string };
-        err.code = json.error?.code;
-        throw err;
-    }
+    if (!res.ok) throw new ApiMessageError(json.error?.message ?? 'خطای ناشناخته', res.status, json.error?.code);
     return json.data as T;
 }
 
@@ -124,59 +139,53 @@ export const isValidPhone = (phone: string): boolean => /^09\d{9}$/.test(phone);
 
 /** درخواست کد؛ پاسخ می‌گوید شماره حساب دارد یا نه */
 export const requestOtp = (phone: string): Promise<OtpResult> =>
-    post<OtpResult>('/v1/auth/otp', { realm: 'consumer', purpose: 'login', phone });
+    post<OtpResult>('/v1/auth/otp', { realm: REALM, purpose: 'login', phone });
 
 /** ورود؛ اگر حساب نبود با `name` حساب می‌سازد */
 export async function loginOrRegister(phone: string, code: string, name?: string): Promise<Session> {
-    const stored = fromPayload(
-        await post<SessionPayload>('/v1/auth/consumer/login', { phone, code, name: name?.trim() || undefined })
-    );
-    writeStored(stored);
-    emit();
+    applyPayload(await post<SessionPayload>('/v1/auth/consumer/login', { phone, code, name: name?.trim() || undefined }));
     return getSessionSnapshot() as Session;
 }
 
 /** پس از ویرایش نام در «حساب من» نشست محلی هم به‌روز می‌شود */
 export function setSessionName(name: string): void {
-    const current = readStored();
+    const current = readProfile();
     if (!current) return;
-    writeStored({ ...current, name });
+    writeProfile({ ...current, name });
     emit();
 }
 
-let refreshing: Promise<boolean> | null = null;
-
-/** نوسازی نشست؛ هم‌زمان فقط یک درخواست (refresh چرخشی است) */
-export function refreshSession(): Promise<boolean> {
-    if (refreshing) return refreshing;
-    refreshing = (async () => {
-        const current = readStored();
-        if (!current) return false;
+/** نوسازی نشست؛ هم‌زمان (حتی بین تب‌ها) فقط یک درخواست، و فقط رد قطعی سرور نشست را پاک می‌کند */
+export const refreshSession = createRefresher<SessionPayload>({
+    marker: () => memory?.accessToken ?? null,
+    call: async () => {
         try {
-            const next = fromPayload(
-                await post<SessionPayload>('/v1/auth/refresh', { refreshToken: current.refreshToken })
-            );
-            writeStored(next);
-            emit();
-            return true;
-        } catch {
-            writeStored(null);
-            emit();
-            return false;
-        } finally {
-            refreshing = null;
+            return await post<SessionPayload>('/v1/auth/refresh', { realm: REALM });
+        } catch (e) {
+            if (e instanceof ApiMessageError && (e.status === 401 || e.status === 403)) throw new RefreshRejected(e.status);
+            throw e;
         }
-    })();
-    return refreshing;
+    },
+    apply: applyPayload,
+    clear: dropSession,
+    withLock: (fn) => webLock('zarineh-front-refresh', fn),
+});
+
+/** توکن دسترسی آماده؛ اگر منقضی/پس از ریلود خالی است و کاربر وارد شده، با کوکی نو می‌شود */
+export async function ensureAccessToken(): Promise<string | null> {
+    const token = getAccessToken();
+    if (token) return token;
+    if (!readProfile()) return null;
+    await refreshSession();
+    return getAccessToken();
 }
 
 export async function logout(): Promise<void> {
-    const current = readStored();
-    writeStored(null);
-    emit();
-    if (current) {
+    const had = readProfile();
+    dropSession();
+    if (had) {
         try {
-            await post('/v1/auth/logout', { refreshToken: current.refreshToken });
+            await post('/v1/auth/logout', { realm: REALM });
         } catch {
             // خروج محلی انجام شده؛ باطل‌سازی سمت سرور بی‌صدا شکست خورد
         }

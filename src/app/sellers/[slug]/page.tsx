@@ -1,6 +1,6 @@
 // React
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 // Statics And Types
 import { SITE_URL } from '@/constants/brand';
@@ -22,6 +22,7 @@ import { getSellerBySlug, getSellers } from '@/service/api/market';
 
 // Utils And Hooks
 import { breadcrumbLd, OG_IMAGE, pageMetadata } from '@/lib/seo';
+import { sellerRedirectPath } from '@/lib/seller-path';
 import { toPersianDigits } from '@/utils/number';
 
 interface SellerPageProps {
@@ -51,6 +52,8 @@ export default async function SellerPage({ params }: SellerPageProps) {
     const { slug } = await params;
     const seller = await getSellerBySlug(slug);
     if (!seller) notFound();
+    const moved = sellerRedirectPath(slug, seller.slug);
+    if (moved) permanentRedirect(moved);
 
     return (
         <main className="container-page py-8">

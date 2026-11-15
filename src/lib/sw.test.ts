@@ -129,7 +129,7 @@ test('visited-pages cache is capped (oldest dropped)', async () => {
         await sw.run('fetch', nav('/p' + i));
         await new Promise((r) => setTimeout(r, 0));
     }
-    const pages = sw.stores.get('zarineh-pages-v4')!;
+    const pages = sw.stores.get('zarineh-pages-v5')!;
     assert.equal(pages.size, 40);
     assert.equal(pages.has('/p0'), false);
     assert.equal(pages.has('/p49'), true);
@@ -144,7 +144,7 @@ test('static cache is capped too', async () => {
         await sw.run('fetch', { request: { method: 'GET', url: 'https://zarineh.test/_next/static/chunks/c' + i + '.js', mode: 'no-cors' } });
         await new Promise((r) => setTimeout(r, 0));
     }
-    assert.ok(sw.stores.get('zarineh-v4')!.size <= 120);
+    assert.ok(sw.stores.get('zarineh-v5')!.size <= 120);
 });
 
 test('a failed static asset response is never cached', async () => {

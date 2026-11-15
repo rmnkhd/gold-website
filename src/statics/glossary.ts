@@ -33,7 +33,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     { id: 'faktor', term: 'فاکتور تفکیک‌شده', definition: 'فاکتوری که ارزش طلا، اجرت، سود و مالیات را جدا می‌نویسد و وزن و عیار هر قلم را دارد؛ مدرک شما در بازخرید.', guide: 'faktor-tala-chist-va-che-bayad-dashte-bashad' },
     { id: 'maliat', term: 'مالیات بر ارزش افزوده', definition: 'در رویه‌ی رایج بازار روی اجرت و سود فروشنده حساب می‌شود و نه روی ارزش خودِ طلا. نرخ جاری را از منبع رسمی یا حسابدار بپرسید.', guide: 'ojrat-chist' },
     { id: 'bazkharid', term: 'بازخرید', definition: 'خرید دوباره‌ی جواهر توسط فروشنده؛ شرایط (کسر اجرت، ضریب قیمت) را پیش از خرید و مکتوب بپرسید.', guide: 'bazkharid-va-negahdari-tala' },
-    { id: 'gavahi', term: 'گواهی جواهر', definition: 'برگه‌ی فروشگاه با وزن و عیار قطعه. گواهی زرینه فقط گفته‌ی فروشگاه را ثبت می‌کند و جایگزین ارزیابی رسمی نیست.', guide: 'tashkhis-tala-asl-az-bedeli' },
+    { id: 'gavahi', term: 'گواهی جواهر', definition: 'برگه‌ی فروشگاه با وزن و عیار قطعه. گواهی کاردست فقط گفته‌ی فروشگاه را ثبت می‌کند و جایگزین ارزیابی رسمی نیست.', guide: 'tashkhis-tala-asl-az-bedeli' },
     { id: 'arzyabi', term: 'ارزیابی عیار', aliases: ['عیارسنجی'], definition: 'سنجش خلوص طلا با روش‌های آزمایشگاهی یا دستگاه‌های معتبر؛ آزمون خانگی نشان قطعی نیست.', guide: 'tashkhis-tala-asl-az-bedeli' },
     { id: 'rikhtegari', term: 'ریخته‌گری', definition: 'مرحله‌ی ساخت جواهر که طلای مذاب را در قالب می‌ریزند؛ بخشی از هزینه‌ی اجرت.' },
     { id: 'spread', term: 'اختلاف قیمت خرید و فروش', definition: 'فاصله‌ی قیمتی که فروشنده هنگام خرید از شما و فروش به شما می‌گذارد؛ هرچه بیشتر باشد، بازفروش کم‌بازده‌تر است.', guide: 'foroosh-tala-dast-dovom' },

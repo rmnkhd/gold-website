@@ -1,7 +1,7 @@
-/* Service worker زرینه — دارایی‌های استاتیک cache-first (سقف‌دار)، صفحات عمومی network-first با نسخه‌ی آخرِ دیده‌شده
+/* Service worker کاردست — دارایی‌های استاتیک cache-first (سقف‌دار)، صفحات عمومی network-first با نسخه‌ی آخرِ دیده‌شده
    برای آفلاین (سقف‌دار)، و صفحه‌ی آفلاین وقتی صفحه هرگز دیده نشده. صفحه‌های شخصی هرگز کش نمی‌شوند. */
-const CACHE = 'zarineh-v4';
-const PAGES = 'zarineh-pages-v4';
+const CACHE = 'zarineh-v5';
+const PAGES = 'zarineh-pages-v5';
 const OFFLINE_URL = '/offline';
 const MAX_STATIC = 120;
 const MAX_PAGES = 40;
@@ -106,7 +106,7 @@ self.addEventListener('push', (event) => {
         data = { body: event.data ? event.data.text() : '' };
     }
     event.waitUntil(
-        self.registration.showNotification(data.title || 'زرینه', {
+        self.registration.showNotification(data.title || 'کاردست', {
             body: data.body || '',
             icon: '/icon-192.png',
             badge: '/icon-192.png',

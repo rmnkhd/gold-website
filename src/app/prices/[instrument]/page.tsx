@@ -119,7 +119,7 @@ export default async function InstrumentPricePage({
                         url: `${SITE_URL}/prices/${inst.slug}`,
                         inLanguage: 'fa',
                         temporalCoverage: `${points[0].day}/${points[points.length - 1].day}`,
-                        creator: { '@type': 'Organization', name: 'زرینه', url: SITE_URL },
+                        creator: { '@type': 'Organization', name: 'کاردست', url: SITE_URL },
                         variableMeasured: `${inst.title} (${inst.currency})`,
                     }}
                 />
@@ -209,7 +209,7 @@ export default async function InstrumentPricePage({
                     </>
                 ) : (
                     <p className="mt-3 text-sm text-muted-foreground">
-                        هنوز داده‌ی کافی برای نمایش روند ثبت نشده است؛ زرینه قیمت را هر روز ثبت می‌کند.
+                        هنوز داده‌ی کافی برای نمایش روند ثبت نشده است؛ کاردست قیمت را هر روز ثبت می‌کند.
                     </p>
                 )}
             </section>

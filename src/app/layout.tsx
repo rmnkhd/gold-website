@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     },
     description: BRAND.description,
     manifest: '/manifest.webmanifest',
-    icons: { icon: '/icon.svg', apple: '/apple-touch-icon.png' },
+    icons: { icon: '/icon-32.png', apple: '/apple-touch-icon.png' },
     applicationName: BRAND.name,
     // canonical در هر صفحه جدا تعریف می‌شود؛ مقدار ریشه همه‌ی صفحه‌ها را به خانه نسبت می‌داد
     openGraph: {

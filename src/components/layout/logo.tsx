@@ -1,11 +1,11 @@
 // React
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Statics And Types
 import { BRAND } from '@/constants/brand';
 
 // Components
-import { Icon } from '@/components/icon';
 
 // Utils And Hooks
 import { cn } from '@/lib/utils';
@@ -23,8 +23,14 @@ export default function Logo({ className, tone = 'light' }: LogoProps) {
             className={cn('group inline-flex items-center gap-2.5', className)}
             aria-label={`${BRAND.name} — صفحه‌ی اصلی`}
         >
-            <span className="bg-gold-sheen inline-flex size-9 items-center justify-center rounded-xl text-brand-950 shadow-xs transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
-                <Icon name="gem" className="size-5" />
+            <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl bg-white p-1 shadow-xs">
+                <Image
+                    src="/kardast-logo.png"
+                    width={48}
+                    height={48}
+                    alt=""
+                    className="size-full object-contain"
+                />
             </span>
             <span
                 className={cn(

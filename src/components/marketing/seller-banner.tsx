@@ -12,7 +12,7 @@ export default function SellerBanner({ className }: { className?: string }) {
             <p className="text-lg font-extrabold">طلافروش هستید؟</p>
             <p className="mt-1 max-w-xl text-sm leading-7 text-brand-100">
                 پنل مدیریت فروشگاه: فاکتور، موجودی وزنی، دفتر بدهی و طلب مشتریان و یادآوری مناسبت‌ها — و صفحه‌ی اختصاصی فروشگاه شما در
-                زرینه. ماه اول رایگان است.
+                کاردست. مدیریت فروشگاهتان را یک‌جا انجام دهید.
             </p>
             <Button asChild variant="gold" className="mt-4">
                 <SellerCtaLink panelUrl={PANEL_URL}>ثبت‌نام فروشگاه</SellerCtaLink>
